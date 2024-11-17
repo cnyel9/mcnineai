@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCNine AI</title>
+    <link rel="stylesheet" href="" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js" type="module"></script>
+    <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js" nomodule></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <style>
+        .glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Global Styles */
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.message-animation {
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar Styles */
+
+#chatBox::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chatBox::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#chatBox::-webkit-scrollbar-thumb {
+    background: #4F46E5;
+    border-radius: 10px;
+}
+
+#chatBox::-webkit-scrollbar-thumb:hover {
+    background: #7C3AED;
+}
+
+/* Button Styles */
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* FAB Styles */
+
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 50;
+}
+
+.fab-button {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(145deg, #5D54E8, #4F46E5);
+    border-radius: 50%;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.fab-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.fab-menu {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    display: none;
+    min-width: 200px;
+}
+
+.fab-menu.active {
+    display: block;
+}
+
+.fab-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #4F46E5;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.fab-menu-item:hover {
+    background-color: #F3F4F6;
+}
+
+/* Voice Input Styles */
+
+.voice-input-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4F46E5;
+}
+
+.voice-input-active {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+/* Language Selector Styles */
+
+.language-selector {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+}
+
+/* Analytics Styles */
+
+.analytics-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 1rem;
+    margin-top: 1rem;
+}
+
+.chart-container {
+    height: 300px;
+    margin: 1rem 0;
+}
+
+/* Persona Selector Styles */
+
+.persona-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+}
+
+.persona-card {
+    flex: 0 0 auto;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.persona-card.active {
+    background: #4F46E5;
+    color: white;
+}
+
+/* Reminder Styles */
+
+.reminder-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 50;
+}
+
+.calendar-widget {
+    background: white;
+   on {
+    animation: messageSlide 0.3s ease-out;
+}
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#chatBox::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chatBox::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#chatBox::-webkit-scrollbar-thumb {
+    background: #4F46E5;
+    border-radius: 10px;
+}
+
+#chatBox::-webkit-scrollbar-thumb:hover {
+    background: #7C3AED;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 50;
+}
+
+.fab-button {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(145deg, #5D54E8, #4F46E5);
+    border-radius: 50%;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.fab-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.fab-menu {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    display: none;
+    min-width: 200px;
+}
+
+.fab-menu.active {
+    display: block;
+}
+
+.fab-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #4F46E5;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.fab-menu-item:hover {
+    background-color: #F3F4F6;
+}
+
+.voice-input-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4F46E5;
+}
+
+.voice-input-active {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+.language-selector {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+}
+
+.analytics-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 1rem;
+    margin-top: 1rem;
+}
+
+.chart-container {
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.persona-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+}
+
+.persona-card {
+    flex: 0 0 auto;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.persona-card.active {
+    background: #4F46E5;
+    color: white;
+}
+
+.reminder-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 50;
+}
+
+.calendar-widget {
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.encryption-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #10B981;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+    </style>
+    </head>
+    <body class="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent font-poppins">
+        <!-- Language Selector -->
+        <select id="languageSelector" class="language-selector p-2 rounded-lg">
+            <option value="id">Indonesia</option>
+            <option value="en">English</option>
+        </select>
+    
+        <div class="encryption-badge">
+            <ion-icon name="lock-closed"></ion-icon>
+            End-to-End
+        </div>
+    
+        <div class="container mx-auto px-4 py-8 max-w-5xl">
+            <!-- Header Section -->
+            <div class="text-center mb-10 space-y-4 pt-10">
+                <div class="flex justify-center mb-4">
+                    <lottie-player
+                    src="https://assets3.lottiefiles.com/packages/lf20_xh83pnwi.json"
+                    background="transparent"
+                    speed="1"
+                    style="width: 120px; height: 120px;"
+                    loop
+                    autoplay
+                ></lottie-player>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-bold text-white mb-3 tracking-tight">MCNine AI</h1>
+            <p class="text-white/80 text-lg max-w-2xl mx-auto">Pendamping cerdas Anda didukung oleh AI tingkat lanjut. Tanyakan padaku apa saja!</p>
+        </div>
+
+        <!-- AI Persona Selector -->
+        <div class="persona-selector">
+            <div class="persona-card active" data-persona="default">
+                <h3>AI Bawaan</h3>
+                <p>Bermanfaat & Profesional</p>
+            </div>
+            <div class="persona-card" data-persona="friendly">
+                <h3>AI yang ramah</h3>
+                <p>Santai & Mudah Didekati</p>
+            </div>
+            <div class="persona-card" data-persona="expert">
+                <h3>Ahli AI</h3>
+                <p>Teknis & Detil</p>
+            </div>
+            <div class="persona-card" data-persona="creative">
+                <h3>AI yang kreatif</h3>
+                <p>Imajinatif & Artistik</p>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="glass-effect rounded-3xl shadow-2xl p-6 md:p-8">
+            <!-- Chat History -->
+            <div id="chatBox" class="h-[500px] overflow-y-auto mb-6 p-4 space-y-6">
+            </div>
+
+            <!-- Input Section -->
+            <div class="flex gap-4 items-center">
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="userInput"
+                        class="w-full px-6 py-4 rounded-2xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-inner text-gray-700 pr-24"
+                        placeholder="Ketik pesan di sini..."
+                    >
+                    <button id="voiceInputButton" class="voice-input-button">
+                        <ion-icon name="mic-outline" class="text-2xl"></ion-icon>
+                    </button>
+                    <label for="fileInput" class="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer">
+                        <ion-icon name="image-outline" class="text-2xl"></ion-icon>
+                    </label>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*">
+                </div>
+                <button id="sendButton" class="bg-primary text-white px-6 py-4 rounded-2xl font-medium hover:bg-primary/90 transition-colors">
+                    Send
+                </button>
+            </div>
+        </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab">
+        <button id="fabButton" class="fab-button">
+            <ion-icon name="add-outline"></ion-icon>
+        </button>
+    </div>
+
+    <!-- FAB Menu -->
+<div id="fabMenu" class="fab-menu">
+    <a href="../src/history.html" class="fab-menu-item" id="historyButton">
+        <ion-icon name="time-outline"></ion-icon>
+        Sejarah Chat
+    </a>
+    <a href="#" class="fab-menu-item" id="newChatButton">
+        <ion-icon name="add-outline"></ion-icon>
+        Chat Baru
+    </a>
+    <a href="#" class="fab-menu-item" id="exportChatButton">
+        <ion-icon name="download-outline"></ion-icon>
+        Ekspor Chat
+    </a>
+    <a href="#" class="fab-menu-item" id="bookmarkButton"> <ion-icon name="bookmark-outline"></ion-icon>
+        Bookmarks
+    </a>
+    <a href="#" class="fab-menu-item" id="templateButton"> <ion-icon name="document-text-outline"></ion-icon> Templates </a> <a href="#" class="fab-menu-item" id="ttsButton"> <ion-icon name="volume-high-outline"></ion-icon>
+        Text-to-Speech
+    </a>
+    <a href="#" class="fab-menu-item" id="settingsBtn">
+        <ion-icon name="settings-outline"></ion-icon>
+        Pengaturan
+    </a>
+</div>
+
+<!-- Dialog Pengaturan -->
+<div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-96 transform transition-all">
+        <!-- Header -->
+        <div class="border-b px-6 py-4 flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-gray-800">Pengaturan</h3>
+            <button id="closeSettings" class="text-gray-400 hover:text-gray-600">
+                <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-4 space-y-4">
+            <!-- Enkripsi End-to-End -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="font-medium text-gray-800">Enkripsi End-to-End</h4>
+                    <p class="text-sm text-gray-500">Mengamankan pesan Anda dengan enkripsi</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="encryptionToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+            </div>
+
+            <!-- Auto-Logout -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="font-medium text-gray-800">Auto-Logout</h4>
+                    <p class="text-sm text-gray-500">Keluar otomatis setelah tidak aktif</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoLogoutToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+            </div>
+
+            <!-- Ukuran Font -->
+    <div>
+        <h4 class="font-medium text-gray-800 mb-2">Ukuran Font</h4>
+        <select id="fontSizeSelect" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="small">Kecil</option>
+            <option value="medium" selected>Sedang</option>
+            <option value="large">Besar</option>
+        </select>
+    </div>
+
+            <!-- Personalisasi Tampilan -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h4 class="font-medium text-gray-800">Tampilan Compact</h4>
+            <p class="text-sm text-gray-500">Tampilkan pesan dalam mode ringkas</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="compactModeToggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+        </label>
+    </div>
+
+
+        <!-- Footer -->
+        <div class="border-t px-6 py-4 flex justify-end space-x-3">
+            <button id="cancelSettings" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                Batal
+            </button>
+            <button id="saveSettings" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                Simpan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notifikasi -->
+<div id="notification" class="fixed bottom-4 left-4 transform transition-all duration-300 opacity-0 -translate-y-2 hidden">
+    <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+        <ion-icon name="checkmark-circle" class="text-xl"></ion-icon>
+        <span id="notificationText">Pengaturan berhasil disimpan!</span>
+    </div>
+</div>
+
+<script>
+    // Konfigurasi OpenAI
+const OPENAI_API_KEY = 'sk-JdcFxdZWFSA36F_KZe7ktc0z-rCaYB2sWy9r2jtQq5T3BlbkFJvqB1qT_7juvCVbUIlpuUubzc-bIF8t1wqkWD7YJjIA'; // Ganti dengan API key Anda
+const API_URL = 'https://api.openai.com/v1/chat/completions';
+
+// Konfigurasi untuk request ke OpenAI
+const requestOptions = {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+    }
+};
+
+// DOM Elements
+const chatBox = document.getElementById('chatBox');
+const userInput = document.getElementById('userInput');
+const sendButton = document.getElementById('sendButton');
+const voiceInputButton = document.getElementById('voiceInputButton');
+const fabButton = document.getElementById('fabButton');
+const fabMenu = document.getElementById('fabMenu');
+const fileInput = document.getElementById('fileInput');
+const exportChatButton = document.getElementById('exportChatButton');
+const newChatButton = document.getElementById('newChatButton');
+const languageSelector = document.getElementById('languageSelector');
+const personaCards = document.querySelectorAll('.persona-card');
+const bookmarkPanel = document.getElementById('bookmarkPanel');
+const closeBookmark = document.getElementById('closeBookmark');
+const bookmarkList = document.getElementById('bookmarkList');
+const ttsToggle = document.getElementById('ttsToggle');
+const ttsVoice = document.getElementById('ttsVoice');
+const ttsSpeed = document.getElementById('ttsSpeed');
+const templatePanel = document.getElementById('templatePanel');
+const closeTemplate = document.getElementById('closeTemplate');
+const addTemplate = document.getElementById('addTemplate');
+const templateList = document.getElementById('templateList');
+
+// State variables
+let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+let templates = JSON.parse(localStorage.getItem('templates')) || [];
+let ttsEnabled = false;
+let currentSpeech = null;
+
+// Bookmark System
+function toggleBookmark(message) {
+    const index = bookmarks.findIndex(b => b.message === message);
+    if (index === -1) {
+        bookmarks.push({
+            message,
+            timestamp: new Date().toISOString()
+        });
+    } else {
+        bookmarks.splice(index, 1);
+    }
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    renderBookmarks();
+}
+
+function renderBookmarks() {
+    bookmarkList.innerHTML = bookmarks.map(bookmark => `
+        <div class="bookmark-item">
+            <p>${bookmark.message}</p>
+            <small class="text-gray-500">${new Date(bookmark.timestamp).toLocaleString()}</small>
+        </div>
+    `).join('');
+}
+
+// Text-to-Speech
+function initTTS() {
+    if ('speechSynthesis' in window) {
+        const voices = speechSynthesis.getVoices();
+        ttsVoice.innerHTML = voices.map(voice => 
+            `<option value="${voice.name}">${voice.name}</option>`
+        ).join('');
+    } else {
+        ttsToggle.style.display = 'none';
+    }
+}
+
+function speak(text) {
+    if (!ttsEnabled) return;
+    
+    if (currentSpeech) {
+        speechSynthesis.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = speechSynthesis.getVoices().find(voice => 
+        voice.name === ttsVoice.value
+    );
+    utterance.rate = parseFloat(ttsSpeed.value);
+    
+    speechSynthesis.speak(utterance);
+    currentSpeech = utterance;
+}
+
+// Template System
+function addNewTemplate() {
+    const template = prompt('Enter your message template:');
+    if (template) {
+        templates.push({
+            text: template,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('templates', JSON.stringify(templates));
+        renderTemplates();
+    }
+}
+
+function renderTemplates() {
+    templateList.innerHTML = templates.map(template => `
+        <div class="template-item" onclick="useTemplate('${template.text}')">
+            <p>${template.text}</p>
+            <small class="text-gray-500">${new Date(template.timestamp).toLocaleString()}</small>
+        </div>
+    `).join('');
+}
+
+function useTemplate(text) {
+    userInput.value = text;
+    templatePanel.classList.remove('panel-visible');
+}
+
+// Event Listeners
+closeBookmark.addEventListener('click', () => 
+    bookmarkPanel.classList.remove('panel-visible')
+);
+
+ttsToggle.addEventListener('click', () => {
+    ttsEnabled = !ttsEnabled;
+    ttsToggle.classList.toggle('tts-active');
+});
+
+closeTemplate.addEventListener('click', () => 
+    templatePanel.classList.remove('panel-visible')
+);
+
+addTemplate.addEventListener('click', addNewTemplate);
+
+// Initialize new features
+function initNewFeatures() {
+    renderBookmarks();
+    renderTemplates();
+    initTTS();
+}
+
+// Add to existing init function
+function init() {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+    startNewChat();
+    initNewFeatures(); // Add this line
+}
+
+// For settings feature
+document.addEventListener('DOMContentLoaded', function() {
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettings = document.getElementById('closeSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const saveSettings = document.getElementById('saveSettings');
+const autoLogoutToggle = document.getElementById('autoLogoutToggle');
+const autoLogoutTime = document.getElementById('autoLogoutTime');
+
+// Load saved settings
+loadSettings();
+
+// Toggle settings modal
+settingsBtn.addEventListener('click', () => {
+settingsModal.classList.remove('hidden');
+});
+
+// Close modal functions
+[closeSettings, cancelSettings].forEach(button => {
+button.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+});
+});
+
+// Close when clicking outside
+settingsModal.addEventListener('click', (e) => {
+if (e.target === settingsModal) {
+    settingsModal.classList.add('hidden');
+}
+});
+
+// Toggle auto-logout time input
+autoLogoutToggle.addEventListener('change', (e) => {
+autoLogoutTime.classList.toggle('hidden', !e.target.checked);
+});
+
+// Save settings
+saveSettings.addEventListener('click', () => {
+const settings = getSettings();
+// Simpan pengaturan ke localStorage
+localStorage .setItem('settings', JSON.stringify(settings));
+// Tampilkan notifikasi
+showNotification('Pengaturan berhasil disimpan!');
+settingsModal.classList.add('hidden');
+});
+});
+
+// Fungsi untuk menampilkan notifikasi
+function showNotification(text) {
+const notification = document.getElementById('notification');
+const notificationText = document.getElementById('notificationText');
+notificationText.textContent = text;
+notification.classList.remove('hidden', 'opacity-0', '-translate-y-2');
+setTimeout(() => {
+notification.classList.add('hidden', 'opacity-0', '-translate-y-2');
+}, 3000);
+}
+
+// Fungsi untuk memuat pengaturan yang disimpan
+function loadSettings() {
+const settings = localStorage.getItem('settings');
+if (settings) {
+const parsedSettings = JSON.parse(settings);
+// Update UI with saved settings
+Object.keys(parsedSettings).forEach(key => {
+    const element = document.getElementById(key);
+    if (element) {
+        if (element.type === 'checkbox') {
+            element.checked = parsedSettings[key];
+        } else {
+            element.value = parsedSettings[key];
+        }
+    }
+});
+}
+}
+
+// Fungsi untuk mendapatkan pengaturan yang disimpan
+function getSettings() {
+const settings = {};
+// Get all settings elements
+const elements = document.querySelectorAll('#settingsModal input, #settingsModal select');
+elements.forEach(element => {
+if (element.type === 'checkbox') {
+    settings[element.id] = element.checked;
+} else {
+    settings[element.id] = element.value;
+}
+});
+return settings;
+}
+
+// Load localStorage
+function loadSettings() {
+const settings = localStorage.getItem('settings');
+if (settings) {
+const parsedSettings = JSON.parse(settings);
+
+// Compact Mode
+if (parsedSettings.compactMode) {
+    document.body.classList.add('compact-mode');
+}
+
+// Font Size
+if (parsedSettings.fontSize) {
+    document.documentElement.style.fontSize = parsedSettings.fontSize;
+}
+
+function updateFontSize(size) {
+const sizes = {
+small: '14px',
+medium: '16px',
+large: '18px'
+};
+document.documentElement.style.fontSize = sizes[size];
+}
+
+function toggleCompactMode(enabled) {
+if (enabled) {
+document.body.classList.add('compact-mode');
+} else {
+document.body.classList.remove('compact-mode');
+}
+}
+
+// CSS untuk compact mode
+const style = document.createElement('style');
+style.textContent = `
+.compact-mode .message {
+padding: 0.5rem;
+margin: 0.25rem 0;
+}
+.compact-mode .message-content {
+font-size: 0.9em;
+}
+`;
+document.head.appendChild(style);
+
+}
+}
+
+// State variables
+let currentPersona = 'default';
+let isListening = false;
+let recognition;
+let messageHistory = [];
+let encryptionKey = 'your-secret-key';
+let currentChatId = generateChatId();
+
+// Initialize Speech Recognition
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userInput.value = transcript;
+        stopVoiceInput();
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        stopVoiceInput();
+    };
+}
+
+// Event Listeners
+sendButton.addEventListener('click', handleSendMessage);
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSendMessage();
+});
+
+voiceInputButton.addEventListener('click', toggleVoiceInput);
+fabButton.addEventListener('click', toggleFabMenu);
+fileInput.addEventListener('change', handleFileUpload);
+exportChatButton.addEventListener('click', exportChat);
+newChatButton.addEventListener('click', startNewChat);
+
+// Functions for handling messages
+function handleSendMessage() {
+    const message = userInput.value.trim();
+    if (message) {
+        addMessage(message, 'user');
+        processAIResponse(message);
+        userInput.value = '';
+    }
+}
+
+function addMessageToUI(message, sender) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message-animation', 'flex', 'gap-4', 
+        sender === 'user' ? 'justify-end' : 'justify-start');
+
+    const contentElement = document.createElement('div');
+    contentElement.classList.add(
+        'max-w-[70%]',
+        'p-4',
+        'rounded-2xl',
+        sender === 'user' ? 'bg-primary' : 'bg-gray-200',
+        sender === 'user' ? 'text-white' : 'text-gray-800'
+    );
+    
+    contentElement.textContent = message;
+    messageElement.appendChild(contentElement);
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function addMessage(message, sender) {
+    addMessageToUI(message, sender);
+
+    const chatMessage = {
+        chatId: currentChatId,
+        message: message,
+        sender: sender,
+        isUser: sender === 'user',
+        timestamp: new Date().toISOString()
+    };
+
+    let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    chatHistory.push(chatMessage);
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    updateAnalytics();
+}
+
+async function processAIResponse(userMessage) {
+    try {
+        sendButton.disabled = true;
+        addMessage('Mengetik...', 'ai');
+
+        const response = await fetch(API_URL, {
+            ...requestOptions,
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    {
+                        role: "system",
+                        content: getPersonaPrompt(currentPersona)
+                    },
+                    {
+                        role: "user",
+                        content: userMessage
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 1000
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+
+        // Hapus pesan "Thinking..."
+        chatBox.removeChild(chatBox.lastChild);
+        
+        // Tambahkan respons AI
+        addMessage(aiResponse, 'ai');
+        updateAnalytics();
+
+    } catch (error) {
+        console.error('Error:', error);
+        chatBox.removeChild(chatBox.lastChild);
+        addMessage("Error. Please try again.", 'ai');
+    } finally {
+        sendButton.disabled = false;
+    }
+}
+
+function getPersonaPrompt(persona) {
+    const prompts = {
+        default: "Anda adalah asisten AI yang membantu dan profesional.",
+        friendly: "Anda adalah asisten AI yang ramah dan santai. Gunakan nada percakapan dan sertakan emoji sesekali.",
+        expert: "Anda adalah asisten AI ahli yang berfokus pada respons terperinci dan teknis.",
+        creative: "Anda adalah asisten AI yang kreatif. Berpikirlah di luar kebiasaan dan berikan solusi inovatif."
+    };
+    return prompts[persona] || prompts.default;
+}
+
+function toggleVoiceInput() {
+    if (!recognition) {
+        alert('Pengenalan ucapan tidak didukung di browser Anda.');
+        return;
+    }
+
+    if (isListening) {
+        stopVoiceInput();
+    } else {
+        startVoiceInput();
+    }
+}
+
+function startVoiceInput() {
+    recognition.start();
+    isListening = true;
+    voiceInputButton.classList.add('voice-input-active');
+}
+
+function stopVoiceInput() {
+    recognition.stop();
+    isListening = false;
+    voiceInputButton.classList.remove('voice-input-active');
+}
+
+function toggleFabMenu() {
+    fabMenu.classList.toggle('active');
+}
+
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => { const fileContent = e.target.result;
+            // Handle file content here
+        };
+        reader.readAsText(file);
+    }
+}
+
+function exportChat() {
+    const chatHistory = JSON.parse(localStorage.getItem('chatHistory'));
+    const chatData = chatHistory.filter((message) => message.chatId === currentChatId);
+    const chatText = chatData.map((message) => `${message.sender === 'user' ? 'You' : 'AI'}: ${message.message}`).join('\n\n');
+    const blob = new Blob([chatText], { type: 'text/plain' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'chat_export.txt';
+a.click();
+URL.revokeObjectURL(url);
+}
+
+function startNewChat() {
+currentChatId = generateChatId();
+chatBox.innerHTML = '';
+addMessage("Halo! Apa yang bisa saya bantu hari ini?", 'ai');
+}
+
+function generateChatId() {
+return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function updateAnalytics() {
+// Implement your analytics update logic here
+}
+
+function encryptMessage(message) {
+return CryptoJS.AES.encrypt(message, encryptionKey).toString();
+}
+
+function decryptMessage(encryptedMessage) {
+const bytes = CryptoJS.AES.decrypt(encryptedMessage, encryptionKey);
+return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+// Persona selection
+personaCards.forEach(card => {
+card.addEventListener('click', () => {
+    personaCards.forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    currentPersona = card.dataset.persona;
+});
+});
+
+// Language selection
+languageSelector.addEventListener('change', (e) => {
+// Implement language change logic here
+});
+
+// Initialize
+function init() {
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+startNewChat();
+}
+
+init();
+
+// Analytics Dashboard
+function initializeCharts() {
+const messageCtx = document.getElementById('messageChart').getContext('2d');
+new Chart(messageCtx, {
+    type: 'line',
+    data: {
+        labels: getLast7Days(),
+        datasets: [{
+            label: 'Messages per Day',
+            data: getMessageCountPerDay(),
+            borderColor: '#4F46E5',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Message Activity'
+            }
+        }
+    }
+});
+
+const topicsCtx = document.getElementById('topicsChart').getContext('2d');
+new Chart(topicsCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Questions', 'Responses', 'Files', 'Others'],
+        datasets: [{
+            data: getTopicDistribution(),
+            backgroundColor: [
+                '#4F46E5',
+                '#7C3AED',
+                '#F472B6',
+                '#9CA3AF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Message Types'
+            }
+        }
+    }
+});
+}
+
+function getLast7Days() {
+const dates = [];
+for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    dates.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+}
+return dates;
+}
+
+function getMessageCountPerDay() {
+const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+const counts = new Array(7).fill(0);
+
+chatHistory.forEach(msg => {
+    const date = new Date(msg.timestamp);
+    const daysAgo = Math.floor((new Date() - date) / (1000 * 60 * 60 * 24));
+    if (daysAgo < 7) {
+        counts[6 - daysAgo]++;
+    }
+});
+
+return counts;
+}
+
+function getTopicDistribution() {
+const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+let questions = 0, responses = 0, files = 0, others = 0;
+
+chatHistory.forEach(msg => {
+    if (msg.message.includes('?')) questions++;
+    else if (msg.sender === 'ai') responses++;
+    else if (msg.message.includes('file:')) files++;
+    else others++;
+});
+
+return [questions, responses, files, others];
+}
+
+// Call initializeCharts when the page loads
+window.addEventListener('load', initializeCharts);
+</script>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#7C3AED',
+                        accent: '#F472B6',
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Load external libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
