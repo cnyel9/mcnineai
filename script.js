@@ -109,6 +109,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // State Manajemen
 let currentImage = null;
+let previousContext = null;
+let conversationHistory = [];
+
+// Fungsi untuk melanjutkan generasi
+async function continueGeneration(previousText) {
+  try {
+    const payload = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Lanjutkan kalimat berikut secara alami dan lengkap. 
+                     Pastikan sambungan kalimat smooth dan sesuai konteks: 
+                     "${previousText}"`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1000,
+        topP: 0.9,
+        topK: 50,
+      },
+    };
+
+    const response = await fetch(MODEL_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error("Error melanjutkan generasi:", error);
+    return "Maaf, tidak dapat melanjutkan generasi.";
+  }
+}
+
+// Fungsi untuk melacak dan mengelola riwayat percakapan
+function updateConversationHistory(message, response) {
+  conversationHistory.push({
+    user: message,
+    ai: response,
+  });
+
+  // Batasi riwayat percakapan
+  if (conversationHistory.length > 10) {
+    conversationHistory.shift();
+  }
+}
 
 // Avatar URLs
 const AVATARS = {
@@ -123,11 +175,19 @@ async function sendMessageToAPI(message, imageData = null) {
   if (specialResponse) return specialResponse;
 
   try {
+    // Tambahkan konteks riwayat percakapan
+    const contextualMessage =
+      conversationHistory.length > 0
+        ? `Konteks percakapan sebelumnya:\n${conversationHistory
+            .map((entry) => `User: ${entry.user}\nAI: ${entry.ai}`)
+            .join("\n")}\n\nPertanyaan terbaru: ${message}`
+        : message;
+
     const payload = {
       contents: [
         {
           parts: [
-            { text: message },
+            { text: contextualMessage },
             ...(imageData
               ? [
                   {
@@ -142,10 +202,10 @@ async function sendMessageToAPI(message, imageData = null) {
         },
       ],
       generationConfig: {
-        temperature: 0.5,
-        maxOutputTokens: 200,
-        topP: 0.8,
-        topK: 40,
+        temperature: 0.9,
+        maxOutputTokens: 1000, // Naikkan token output
+        topP: 0.9,
+        topK: 50,
       },
     };
 
@@ -277,12 +337,116 @@ function createTypingIndicator() {
   return typingIndicator;
 }
 
+// UNTUK MEMPERCANTIK RESPON
+function formatMarkdownText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, (match, content) => {
+      return `<strong>${content}</strong>`;
+    })
+    .replace(/\*(.*?)\*/g, (match, content) => {
+      return `<em>${content}</em>`;
+    })
+    .replace(/~~(.*?)~~/g, (match, content) => {
+      return `<del>${content}</del>`;
+    });
+}
+
+// Fungsi Struktur Respon
+function enhancedResponseStructure(text) {
+  // Format teks terlebih dahulu
+  text = formatMarkdownText(text);
+
+  // Deteksi struktur
+  const isList = text.includes("•") || text.includes("-");
+  const isMultiParagraph = text.split("\n").length > 2;
+
+  // Struktur untuk list
+  if (isList) {
+    const sections = text.split(/\n(?=•|\-)/).map((section) => {
+      const lines = section.split("\n");
+      const title = lines[0];
+      const items = lines.slice(1).filter((line) => line.trim() !== "");
+
+      return `
+        <div class="mb-3">
+          <h3 class="font-bold text-purple-300 mb-2">${title}</h3>
+          <div class="ml-4">
+            ${items
+              .map(
+                (item) => `
+              <div class="flex items-start mb-1">
+                <span class="mr-2 text-purple-400">•</span>
+                <span>${item.replace(/^•|-/, "").trim()}</span>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+    });
+
+    return sections.join("");
+  }
+
+  // Struktur untuk paragraf
+  if (isMultiParagraph) {
+    const paragraphs = text.split("\n\n");
+    return paragraphs
+      .map(
+        (para) => `
+      <p class="mb-3">${para.trim()}</p>
+    `
+      )
+      .join("");
+  }
+
+  // Teks biasa
+  return `<p>${text}</p>`;
+}
+
 // handleSendMessage
 async function handleSendMessage() {
   const message = messageInput.value.trim();
   if (!message) return;
 
   try {
+    // Cek apakah ingin melanjutkan generasi sebelumnya
+    if (
+      (message.toLowerCase().includes("lanjutkan") ||
+        message.toLowerCase().includes("sambung")) &&
+      previousContext
+    ) {
+      // Validasi panjang konteks sebelumnya
+      if (previousContext.length < 50) {
+        addMessage(
+          "Maaf, konteks sebelumnya terlalu pendek untuk dilanjutkan.",
+          "ai"
+        );
+        messageInput.value = "";
+        return;
+      }
+
+      const continuedResponse = await continueGeneration(previousContext);
+
+      const structuredResponse = enhancedResponseStructure(
+        previousContext + " " + continuedResponse
+      );
+
+      addMessage(structuredResponse, "ai");
+
+      // Update konteks
+      previousContext = previousContext + " " + continuedResponse;
+
+      // Update riwayat percakapan
+      updateConversationHistory(message, continuedResponse);
+
+      // Reset input
+      messageInput.value = "";
+
+      return;
+    }
+
     // Tambah pesan user
     addMessage(message, "user");
     messageInput.value = "";
@@ -311,23 +475,31 @@ async function handleSendMessage() {
     // Hapus indikator ketik
     typingIndicator.remove();
 
+    // Simpan konteks untuk referensi lanjutan
+    previousContext = response;
+
+    // Update riwayat percakapan
+    updateConversationHistory(message, response);
+
     // Cek apakah respon mengandung kode
     const codeMatch = response.match(/```(\w+)?\n([\s\S]*?)```/);
 
     if (codeMatch) {
       const language = codeMatch[1] || "javascript";
       const code = codeMatch[2].trim();
+      const textWithoutCode = response
+        .replace(/```(\w+)?\n([\s\S]*?)```/g, "")
+        .trim();
+
+      // Struktur respon dengan kode
+      const structuredResponse = enhancedResponseStructure(textWithoutCode);
 
       // Tambahkan pesan dengan kode
-      addMessage(
-        response.replace(/```(\w+)?\n([\s\S]*?)```/g, "").trim(),
-        "ai",
-        code,
-        language
-      );
+      addMessage(structuredResponse, "ai", code, language);
     } else {
-      // Tambahkan pesan biasa
-      addMessage(response, "ai");
+      // Tambahkan pesan dengan struktur
+      const structuredResponse = enhancedResponseStructure(response);
+      addMessage(structuredResponse, "ai");
     }
   } catch (error) {
     // Hapus indikator ketik
@@ -444,6 +616,189 @@ imageInput.addEventListener("change", (e) => {
       imagePreview.classList.remove("hidden");
     };
     reader.readAsDataURL(file);
+  }
+});
+
+// AUTO COMPLETE SUGEST
+class SmartAutocomplete {
+  constructor() {
+    this.suggestions = {
+      Biasa: [
+        "Jelaskan konsep...",
+        "Bantu saya merancang...",
+        "Apa pendapatmu tentang...",
+      ],
+      tech: [
+        "Jelaskan arsitektur AI",
+        "Perbedaan machine learning dan deep learning",
+        "Trend teknologi 2024",
+      ],
+      coding: [
+        "Contoh struktur data kompleks",
+        "Optimasi algoritma",
+        "Design pattern dalam pemrograman",
+      ],
+      personal: [
+        "Strategi pengembangan diri",
+        "Manajemen waktu efektif",
+        "Tips membangun karier",
+      ],
+    };
+
+    this.currentCategory = "default";
+    this.container = null;
+    this.suggestionArea = null;
+    this.initUI();
+  }
+
+  initUI() {
+    // Buat container utama
+    this.container = document.createElement("div");
+    this.container.classList.add(
+      "smart-autocomplete",
+      "fixed",
+      "bottom-20",
+      "right-4",
+      "z-50",
+      "bg-white/10",
+      "backdrop-blur-md",
+      "rounded-lg",
+      "p-2",
+      "w-64"
+    );
+
+    // Kontainer kategori
+    const categoryContainer = document.createElement("div");
+    categoryContainer.classList.add("flex", "space-x-1", "mb-2");
+
+    // Buat tab kategori
+    const categories = Object.keys(this.suggestions);
+    categories.forEach((category) => {
+      const tab = document.createElement("button");
+      tab.textContent = category;
+      tab.classList.add(
+        "px-2",
+        "py-1",
+        "text-xs",
+        "rounded",
+        "text-white",
+        "bg-blue-500/30",
+        "hover:bg-blue-500/50"
+      );
+
+      tab.addEventListener("click", (e) => {
+        // Hapus active dari semua
+        categoryContainer
+          .querySelectorAll("button")
+          .forEach((btn) => btn.classList.remove("bg-blue-500/50"));
+
+        // Tambah active ke yang dipilih
+        e.target.classList.add("bg-blue-500/50");
+        this.setCategory(category);
+
+        // Cegah hilangnya container
+        e.stopPropagation();
+      });
+
+      categoryContainer.appendChild(tab);
+    });
+
+    // Set default active
+    categoryContainer.firstChild.classList.add("bg-blue-500/50");
+    this.container.appendChild(categoryContainer);
+
+    // Area suggestions
+    this.suggestionArea = document.createElement("div");
+    this.suggestionArea.classList.add(
+      "grid",
+      "grid-cols-2",
+      "gap-1",
+      "text-xs"
+    );
+    this.container.appendChild(this.suggestionArea);
+
+    // Cegah hilang saat diklik di dalam area
+    this.container.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  setCategory(category) {
+    this.currentCategory = category;
+    this.renderSuggestions();
+  }
+
+  renderSuggestions() {
+    const suggestions = this.suggestions[this.currentCategory];
+    this.suggestionArea.innerHTML = "";
+
+    suggestions.forEach((suggestion) => {
+      const suggestionBtn = document.createElement("button");
+      suggestionBtn.textContent = suggestion;
+      suggestionBtn.classList.add(
+        "bg-blue-500/20",
+        "hover:bg-blue-500/40",
+        "text-white",
+        "rounded",
+        "p-1",
+        "text-left",
+        "text-xs"
+      );
+
+      suggestionBtn.addEventListener("click", (e) => {
+        // Kirim suggestion ke input
+        document.getElementById("messageInput").value = suggestion;
+
+        // Fokus ke input
+        document.getElementById("messageInput").focus();
+
+        // Cegah hilangnya container
+        e.stopPropagation();
+      });
+
+      this.suggestionArea.appendChild(suggestionBtn);
+    });
+  }
+
+  show() {
+    // Hapus dulu jika sudah ada
+    if (this.container.parentElement) {
+      this.container.remove();
+    }
+
+    // Tambahkan ke body
+    document.body.appendChild(this.container);
+    this.renderSuggestions();
+  }
+
+  hide() {
+    // Hapus dari body
+    if (this.container.parentElement) {
+      this.container.remove();
+    }
+  }
+}
+
+// Inisiasi
+const smartAutocomplete = new SmartAutocomplete();
+
+// Event listener
+document.getElementById("messageInput").addEventListener("focus", () => {
+  smartAutocomplete.show();
+});
+
+// Tambahkan event listener global untuk kontrol
+document.addEventListener("click", (event) => {
+  const autocomplete = document.querySelector(".smart-autocomplete");
+  const messageInput = document.getElementById("messageInput");
+
+  // Cek apakah klik di luar autocomplete dan input
+  if (
+    autocomplete &&
+    !autocomplete.contains(event.target) &&
+    event.target !== messageInput
+  ) {
+    smartAutocomplete.hide();
   }
 });
 
