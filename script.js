@@ -1,6 +1,8 @@
 // Konfigurasi API Gemini
 const API_KEY = "AIzaSyBkll4wVmrjQukSWsNIe_WJT7cPmL4LU8k";
-let CURRENT_MODEL = "gemini-pro"; // Default model
+const MODEL_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
+  API_KEY;
 
 // Daftar Prompt Khusus untuk Konteks Lokal
 const SPECIAL_PROMPTS = {
@@ -9,9 +11,15 @@ const SPECIAL_PROMPTS = {
     "kenalan",
     "halo",
     "siapa kamu",
+    "siapa?",
+    "gemini",
     "tentang anda",
     "kenalkan diri",
     "asal usul",
+    "mcnine ai",
+    "nine",
+    "mc",
+    "ai",
   ],
   capabilities: [
     "kemampuan",
@@ -26,23 +34,13 @@ const SPECIAL_PROMPTS = {
     "siapa membuatmu",
     "author",
     "developer",
+    "gemini",
+    "gpt",
+    "claude",
+    "dibuat",
     "penciptamu",
   ],
 };
-
-// Fungsi untuk mengubah model
-function changeModel(modelName) {
-  switch (modelName) {
-    case "standard":
-      CURRENT_MODEL = "gemini-pro";
-      break;
-    case "flash":
-      CURRENT_MODEL = "gemini-pro-flash";
-      break;
-    default:
-      CURRENT_MODEL = "gemini-pro";
-  }
-}
 
 // Fungsi untuk Respon Khusus
 function getSpecialResponse(message) {
@@ -83,23 +81,71 @@ function getSpecialResponse(message) {
   return null;
 }
 
+// Elemen DOM
+const chatContainer = document.getElementById("chatContainer");
+const messageContainer = document.getElementById("messageContainer");
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+const imageInput = document.getElementById("imageInput");
+const imageUploadBtn = document.getElementById("imageUploadBtn");
+const imagePreview = document.getElementById("imagePreview");
+const previewImage = document.getElementById("previewImage");
+// Event listener untuk modal pengaturan
+document.addEventListener("DOMContentLoaded", () => {
+  const settingsButton = document.getElementById("settingsButton");
+  const settingsModal = document.getElementById("settingsModal");
+  const closeSettingsModalBtn = document.getElementById("closeSettingsModal");
+
+  // Buka Modal Pengaturan
+  settingsButton.addEventListener("click", () => {
+    settingsModal.classList.remove("hidden");
+  });
+
+  // Tutup Modal Pengaturan
+  closeSettingsModalBtn.addEventListener("click", () => {
+    settingsModal.classList.add("hidden");
+  });
+});
+
+// State Manajemen
+let currentImage = null;
+
+// Avatar URLs
+const AVATARS = {
+  user: "/img/user-dark.png",
+  ai: "/img/ai2.gif",
+};
+
 // Fungsi Kirim Pesan ke API Gemini
-async function sendMessageToAPI(message) {
+async function sendMessageToAPI(message, imageData = null) {
   // Cek respon khusus terlebih dahulu
   const specialResponse = getSpecialResponse(message);
   if (specialResponse) return specialResponse;
 
   try {
-    const MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/${CURRENT_MODEL}:generateContent?key=${API_KEY}`;
-
     const payload = {
-      contents: [{ parts: [{ text: message }] }],
+      contents: [
+        {
+          parts: [
+            { text: message },
+            ...(imageData
+              ? [
+                  {
+                    inline_data: {
+                      mime_type: imageData.mime_type,
+                      data: imageData.data,
+                    },
+                  },
+                ]
+              : []),
+          ],
+        },
+      ],
       generationConfig: {
-        // Perbedaan konfigurasi antar model
-        temperature: CURRENT_MODEL === "gemini-pro-flash" ? 0.5 : 0.7,
-        maxOutputTokens: CURRENT_MODEL === "gemini-pro-flash" ? 200 : 300,
-        topP: CURRENT_MODEL === "gemini-pro-flash" ? 0.8 : 0.9,
-        topK: CURRENT_MODEL === "gemini-pro-flash" ? 40 : 50,
+        temperature: 0.5,
+        maxOutputTokens: 200,
+        topP: 0.8,
+        topK: 40,
       },
     };
 
@@ -113,31 +159,29 @@ async function sendMessageToAPI(message) {
     return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error("Error:", error);
-    return `Maaf, terjadi kesalahan dalam komunikasi dengan model ${CURRENT_MODEL}. Silakan coba lagi.`;
+    return "Maaf, terjadi kesalahan dalam komunikasi dengan AI. Silakan coba lagi.";
   }
 }
 
-// Elemen DOM
-const chatContainer = document.getElementById("chatContainer");
-const messageContainer = document.getElementById("messageContainer");
-const messageInput = document.getElementById("messageInput");
-const sendButton = document.getElementById("sendButton");
-const imageInput = document.getElementById("imageInput");
-const imageUploadBtn = document.getElementById("imageUploadBtn");
-const imagePreview = document.getElementById("imagePreview");
-const previewImage = document.getElementById("previewImage");
+// Fungsi untuk membuat code block
+function createCodeBlock(code, language = "javascript") {
+  const codeBlock = document.createElement("pre");
+  codeBlock.className = `code-block language-${language}`;
 
-// State Manajemen
-let currentImage = null;
+  const codeElement = document.createElement("code");
+  codeElement.textContent = code;
 
-// Avatar URLs
-const AVATARS = {
-  user: "/img/user.png",
-  ai: "/img/ai2.gif",
-};
+  codeBlock.appendChild(codeElement);
+  return codeBlock;
+}
 
 // Fungsi Tambah Pesan
-function addMessage(content, type = "user") {
+function addMessage(
+  content,
+  type = "user",
+  codeContent = null,
+  codeLanguage = "javascript"
+) {
   const messageElement = document.createElement("div");
 
   messageElement.classList.add(
@@ -163,8 +207,8 @@ function addMessage(content, type = "user") {
     <div class="
       ${
         type === "user"
-          ? "bg-blue-600 text-white order-first"
-          : "bg-gradient-to-r from-purple-700 to-indigo-600 text-white"
+          ? "user-bubble bg-gradient-to-r from-blue-600 to-blue-500 text-white"
+          : "ai-bubble bg-gradient-to-r from-purple-700 to-indigo-600 text-white"
       }
       p-4 
       rounded-2xl 
@@ -194,6 +238,14 @@ function addMessage(content, type = "user") {
     }
   `;
 
+  // Tambahkan code block jika ada
+  if (codeContent) {
+    const codeBlockElement = createCodeBlock(codeContent, codeLanguage);
+    messageElement
+      .querySelector(".ai-bubble, .user-bubble")
+      .appendChild(codeBlockElement);
+  }
+
   messageContainer.appendChild(messageElement);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -204,46 +256,28 @@ function addMessage(content, type = "user") {
   }
 }
 
-// Tambahkan event listener untuk pilihan model di modal pengaturan
-document.getElementById("modelSelect").addEventListener("change", (e) => {
-  const selectedModel = e.target.value;
-
-  // Konfirmasi pergantian model
-  const konfirmasi = confirm(
-    `Apakah Anda ingin beralih ke model ${selectedModel}?`
+// Fungsi Animasi Ketik
+function createTypingIndicator() {
+  const typingIndicator = document.createElement("div");
+  typingIndicator.classList.add(
+    "typing-indicator",
+    "flex",
+    "items-center",
+    "space-x-1",
+    "p-2",
+    "text-gray-400"
   );
 
-  if (konfirmasi) {
-    // Ganti model
-    changeModel(selectedModel);
+  typingIndicator.innerHTML = `
+    <div class="dot animate-bounce delay-0"></div>
+    <div class="dot animate-bounce delay-100"></div>
+    <div class="dot animate-bounce delay-200"></div>
+  `;
 
-    // Reset percakapan
-    messageContainer.innerHTML = "";
+  return typingIndicator;
+}
 
-    // Tampilkan pesan sambutan dengan model baru
-    addMessage(
-      `Hai! Saya MCNine AI, sekarang menggunakan model ${
-        selectedModel === "standard" ? "Standard" : "Flash"
-      }. Ada yang bisa saya bantu?`,
-      "ai"
-    );
-
-    // Simpan pilihan model ke localStorage
-    localStorage.setItem("selectedModel", selectedModel);
-  } else {
-    // Kembalikan pilihan model ke semula jika dibatalkan
-    document.getElementById("modelSelect").value =
-      CURRENT_MODEL === "gemini-pro" ? "standard" : "flash";
-  }
-});
-
-// Event Listener Utama
-sendButton.addEventListener("click", handleSendMessage);
-messageInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") handleSendMessage();
-});
-
-// Handler Kirim Pesan
+// handleSendMessage
 async function handleSendMessage() {
   const message = messageInput.value.trim();
   if (!message) return;
@@ -253,25 +287,52 @@ async function handleSendMessage() {
     addMessage(message, "user");
     messageInput.value = "";
 
-    // Tampilkan loading
-    addMessage("Sedang menulis...", "ai");
+    // Buat dan tambahkan indikator ketik
+    const typingIndicator = createTypingIndicator();
+    messageContainer.appendChild(typingIndicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Siapkan data gambar jika ada
+    const imageData = currentImage
+      ? {
+          mime_type: currentImage.split(";")[0].split(":")[1],
+          data: currentImage.split(",")[1],
+        }
+      : null;
 
     // Kirim ke API dengan timeout
     const response = await Promise.race([
-      sendMessageToAPI(message),
+      sendMessageToAPI(message, imageData),
       new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Timeout")), 15000)
       ),
     ]);
 
-    // Hapus pesan loading dan tambah respon
-    const loadingMessage = messageContainer.lastElementChild;
-    loadingMessage.remove();
-    addMessage(response, "ai");
+    // Hapus indikator ketik
+    typingIndicator.remove();
+
+    // Cek apakah respon mengandung kode
+    const codeMatch = response.match(/```(\w+)?\n([\s\S]*?)```/);
+
+    if (codeMatch) {
+      const language = codeMatch[1] || "javascript";
+      const code = codeMatch[2].trim();
+
+      // Tambahkan pesan dengan kode
+      addMessage(
+        response.replace(/```(\w+)?\n([\s\S]*?)```/g, "").trim(),
+        "ai",
+        code,
+        language
+      );
+    } else {
+      // Tambahkan pesan biasa
+      addMessage(response, "ai");
+    }
   } catch (error) {
-    // Hapus pesan loading
-    const loadingMessage = messageContainer.lastElementChild;
-    loadingMessage.remove();
+    // Hapus indikator ketik
+    const typingIndicator = messageContainer.querySelector(".typing-indicator");
+    if (typingIndicator) typingIndicator.remove();
 
     // Tampilkan pesan error yang ramah
     addMessage(
@@ -280,6 +341,93 @@ async function handleSendMessage() {
     );
   }
 }
+
+// FITUR COPY
+function addCopyFeature() {
+  // Fungsi untuk membuat tombol salin
+  function createCopyButton(messageElement) {
+    const copyButton = document.createElement("button");
+    copyButton.innerHTML = '<i class="fas fa-copy text-xs"></i>';
+    copyButton.classList.add(
+      "copy-btn",
+      "absolute",
+      "top-2",
+      "right-2",
+      "bg-white/10",
+      "hover:bg-white/20",
+      "text-white",
+      "rounded-full",
+      "p-2",
+      "transition",
+      "opacity-0",
+      "group-hover:opacity-100"
+    );
+
+    copyButton.addEventListener("click", () => {
+      // Ekstrak teks dari elemen pesan
+      const textToCopy = messageElement.textContent.trim();
+
+      // Salin ke clipboard
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          // Efek visual saat berhasil disalin
+          copyButton.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+
+          // Kembalikan icon semula setelah beberapa detik
+          setTimeout(() => {
+            copyButton.innerHTML = '<i class="fas fa-copy text-xs"></i>';
+          }, 1500);
+        })
+        .catch((err) => {
+          console.error("Gagal menyalin teks:", err);
+        });
+    });
+
+    return copyButton;
+  }
+
+  // Tambahkan tombol salin ke pesan AI
+  function enhanceMessages() {
+    const aiMessages = document.querySelectorAll(".ai-bubble");
+
+    aiMessages.forEach((messageElement) => {
+      // Pastikan belum ada tombol sebelumnya
+      if (!messageElement.querySelector(".copy-btn")) {
+        // Bungkus pesan dalam container group
+        messageElement.classList.add("relative", "group");
+
+        // Buat dan tambahkan tombol salin
+        const copyButton = createCopyButton(messageElement);
+        messageElement.appendChild(copyButton);
+      }
+    });
+  }
+
+  // Panggil saat pesan baru ditambahkan
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        enhanceMessages();
+      }
+    });
+  });
+
+  // Amati perubahan pada container pesan
+  observer.observe(messageContainer, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Jalankan pertama kali
+  enhanceMessages();
+}
+
+// Event Listener Utama
+sendButton.addEventListener("click", handleSendMessage);
+messageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") handleSendMessage();
+});
 
 // Upload Gambar
 imageUploadBtn.addEventListener("click", () => {
@@ -299,40 +447,7 @@ imageInput.addEventListener("change", (e) => {
   }
 });
 
-// Fitur untuk pengaturan
-const settingsModal = document.getElementById("settingsModal");
-const closeSettingsModalBtn = document.getElementById("closeSettingsModal");
-
-// Buka Modal Pengaturan
-document.getElementById("settingsButton").addEventListener("click", () => {
-  settingsModal.classList.remove("hidden");
-});
-
-// Tutup Modal Pengaturan
-closeSettingsModalBtn.addEventListener("click", () => {
-  settingsModal.classList.add("hidden");
-});
-
-// Load Pengaturan Tersimpan
-function loadSavedSettings() {
-  // Bahasa
-  const savedLanguage = localStorage.getItem("appLanguage") || "indonesia";
-  document.getElementById("languageSelect").value = savedLanguage;
-
-  // Model
-  const savedModel = localStorage.getItem("selectedModel") || "standard";
-  document.getElementById("modelSelect").value = savedModel;
-  changeModel(savedModel);
-}
-
-// Tambahkan event listener untuk pilihan model di modal pengaturan
-document.getElementById("modelSelect").addEventListener("change", (e) => {
-  const selectedModel = e.target.value;
-  changeModel(selectedModel);
-
-  // Simpan pilihan model ke localStorage
-  localStorage.setItem("selectedModel", selectedModel);
-});
-
+// Panggil fungsi saat halaman dimuat
+document.addEventListener("DOMContentLoaded", addCopyFeature);
 // Panggil saat halaman dimuat
 document.addEventListener("DOMContentLoaded", loadSavedSettings);
