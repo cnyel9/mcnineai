@@ -628,17 +628,17 @@ class SmartAutocomplete {
         "Bantu saya merancang...",
         "Apa pendapatmu tentang...",
       ],
-      tech: [
+      Tech: [
         "Jelaskan arsitektur AI",
         "Perbedaan machine learning dan deep learning",
         "Trend teknologi 2024",
       ],
-      coding: [
+      Coding: [
         "Contoh struktur data kompleks",
         "Optimasi algoritma",
         "Design pattern dalam pemrograman",
       ],
-      personal: [
+      User: [
         "Strategi pengembangan diri",
         "Manajemen waktu efektif",
         "Tips membangun karier",
