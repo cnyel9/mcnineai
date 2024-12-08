@@ -1008,7 +1008,7 @@ const PAKET_CONFIG = {
     fitur: ["Akses Dasar AI", "Terbatas 100 Pertanyaan", "Dukungan Email"],
   },
   pro: {
-    harga: 150000,
+    harga: 50000,
     durasi: "Selamanya",
     maxQuestions: Infinity,
     fitur: [
@@ -1200,7 +1200,7 @@ basicPaketBtn.addEventListener("click", () => {
         <div class="bg-blue-500/10 p-3 rounded-lg mt-4">
           <div class="flex justify-between items-center">
             <span class="text-blue-800 font-semibold">Total Harga</span>
-            <span class="text-1xl font-bold text-blue-600">Rp 50.000</span>
+            <span class="text-1xl font-bold text-blue-600">Rp 10.000</span>
           </div>
         </div>
       </div>
