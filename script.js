@@ -90,6 +90,25 @@ const imageInput = document.getElementById("imageInput");
 const imageUploadBtn = document.getElementById("imageUploadBtn");
 const imagePreview = document.getElementById("imagePreview");
 const previewImage = document.getElementById("previewImage");
+// Untuk premium
+const buyLicenseBtn = document.getElementById("buyLicenseBtn");
+const premiumModal = document.getElementById("premiumModal");
+const closePremiumModal = document.getElementById("closePremiumModal");
+const basicPaketBtn = document.getElementById("basicPaketBtn");
+const proPaketBtn = document.getElementById("proPaketBtn");
+const konfirmasiModal = document.getElementById("konfirmasiModal");
+const batalKonfirmasi = document.getElementById("batalKonfirmasi");
+const konfirmasiPembayaran = document.getElementById("konfirmasiPembayaran");
+const suksesModal = document.getElementById("suksesModal");
+const tutupSuksesModal = document.getElementById("tutupSuksesModal");
+const gagalModal = document.getElementById("gagalModal");
+const tutupGagalModal = document.getElementById("tutupGagalModal");
+const konfirmasiTitle = document.getElementById("konfirmasiTitle");
+const konfirmasiPaket = document.getElementById("konfirmasiPaket");
+const suksesMessage = document.getElementById("suksesMessage");
+const gagalMessage = document.getElementById("gagalMessage");
+const aktivasiInput = document.getElementById("aktivasiInput");
+
 // Event listener untuk modal pengaturan
 document.addEventListener("DOMContentLoaded", () => {
   const settingsButton = document.getElementById("settingsButton");
@@ -104,6 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tutup Modal Pengaturan
   closeSettingsModalBtn.addEventListener("click", () => {
     settingsModal.classList.add("hidden");
+  });
+
+  // Tutup modal jika mengklik area di luar modal
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.classList.add("hidden");
+    }
   });
 });
 
@@ -405,10 +431,152 @@ function enhancedResponseStructure(text) {
   return `<p>${text}</p>`;
 }
 
+// FITUR PREMIUM
+// Tambahkan di bagian konfigurasi awal
+const PREMIUM_KEYS = {
+  basic: "MCN-BASIC-2024",
+  pro: "MCN-PRO-2024",
+};
+
+// Fungsi untuk menyimpan status premium
+function savePremiumStatus(paket) {
+  const premiumData = {
+    paket: paket,
+    aktif: true,
+    tanggalAktivasi: new Date().toISOString(),
+    kadaluarsa:
+      paket === "basic"
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+  localStorage.setItem("mcnineAiPremium", JSON.stringify(premiumData));
+}
+
+// Fungsi untuk memeriksa status premium
+function cekStatusPremium() {
+  const premiumData = JSON.parse(localStorage.getItem("mcnineAiPremium"));
+
+  console.log("Premium Data:", premiumData); // Tambahkan log ini
+
+  if (!premiumData) return false;
+
+  const today = new Date();
+  const kadaluarsa = new Date(premiumData.kadaluarsa);
+
+  const isPremium = premiumData.aktif && today <= kadaluarsa;
+  console.log("Is Premium:", isPremium); // Tambahkan log ini
+
+  return isPremium;
+}
+
+// Fungsi pembatasan fitur untuk non-premium
+function cekBatasanPremium() {
+  const isPremium = cekStatusPremium();
+
+  if (!isPremium) {
+    // Contoh pembatasan: Batasi jumlah pesan per hari
+    const hariIni = new Date().toDateString();
+    const pesanHariIni = JSON.parse(
+      localStorage.getItem("pesanHariIni") || "{}"
+    );
+
+    if (pesanHariIni.tanggal !== hariIni) {
+      pesanHariIni.tanggal = hariIni;
+      pesanHariIni.jumlah = 0;
+    }
+
+    if (pesanHariIni.jumlah >= 5) {
+      // Tampilkan modal upgrade premium
+      premiumModal.classList.remove("hidden");
+      return false;
+    }
+
+    pesanHariIni.jumlah++;
+    localStorage.setItem("pesanHariIni", JSON.stringify(pesanHariIni));
+  }
+
+  return true;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  updatePremiumIndicator(); // Panggil saat halaman dimuat
+});
+
+// Modifikasi konfirmasi pembayaran
+konfirmasiPembayaran.addEventListener("click", () => {
+  const kodeAktivasi = aktivasiInput.value.trim();
+
+  // Gunakan kode aktivasi yang valid dari PREMIUM_KEYS
+  if (
+    (selectedPaket === "Basic" && kodeAktivasi === PREMIUM_KEYS.basic) ||
+    (selectedPaket === "Pro" && kodeAktivasi === PREMIUM_KEYS.pro)
+  ) {
+    // Simpan status premium
+    savePremiumStatus(selectedPaket.toLowerCase());
+
+    konfirmasiModal.classList.add("hidden");
+    suksesMessage.textContent = `Aktivasi ${selectedPaket} berhasil!`;
+    suksesModal.classList.remove("hidden");
+
+    // Perbarui indikator premium
+    updatePremiumIndicator();
+  } else {
+    konfirmasiModal.classList.add("hidden");
+    gagalMessage.textContent = "Kode aktivasi tidak valid";
+    gagalModal.classList.remove("hidden");
+  }
+});
+
+// Tambahkan indikator status premium di UI
+function updatePremiumIndicator() {
+  const isPremium = cekStatusPremium();
+  const premiumIndicator = document.getElementById("premiumIndicator");
+
+  if (!premiumIndicator) {
+    console.warn("Premium indicator element not found");
+    return;
+  }
+
+  if (isPremium) {
+    premiumIndicator.innerHTML = `
+      <span class="text-green-500">
+        <i class="fas fa-crown"></i> Premium Aktif
+      </span>
+    `;
+    // Tambahkan kelas atau styling tambahan jika diperlukan
+    premiumIndicator.classList.add("premium-active");
+  } else {
+    premiumIndicator.innerHTML = `
+      <span class="text-gray-500">
+        <i class="fas fa-lock"></i> Upgrade Premium
+      </span>
+    `;
+    premiumIndicator.classList.remove("premium-active");
+  }
+}
+
+// Panggil saat halaman dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  updatePremiumIndicator();
+});
+
 // handleSendMessage
 async function handleSendMessage() {
   const message = messageInput.value.trim();
   if (!message) return;
+  // Cek batasan premium sebelum mengirim pesan
+  if (!cekBatasanPremium()) {
+    if (!cekBatasanPremium()) {
+      premiumModal.classList.remove("hidden");
+      return;
+    }
+    addMessage(
+      "Anda mencapai batas pesan harian. Silakan upgrade ke Premium.",
+      "ai"
+    );
+    premiumModal.classList.remove("hidden");
+    return;
+  }
 
   try {
     // Cek apakah ingin melanjutkan generasi sebelumnya
@@ -800,6 +968,230 @@ document.addEventListener("click", (event) => {
   ) {
     smartAutocomplete.hide();
   }
+});
+
+// Konfigurasi Paket
+const PAKET_CONFIG = {
+  basic: {
+    harga: 50000,
+    durasi: "30 Hari",
+    maxQuestions: 100,
+    fitur: ["Akses Dasar AI", "Terbatas 100 Pertanyaan", "Dukungan Email"],
+  },
+  pro: {
+    harga: 150000,
+    durasi: "Selamanya",
+    maxQuestions: Infinity,
+    fitur: [
+      "Akses Penuh AI",
+      "Pertanyaan Unlimited",
+      "Prioritas Dukungan",
+      "Update Fitur Terbaru",
+    ],
+  },
+};
+
+// Fungsi Validasi Kode Lisensi (contoh sederhana)
+function validateLicenseKey(key, paket) {
+  const validKeys = {
+    basic: "MCN-BASIC-2024",
+    pro: "MCN-PRO-2024",
+  };
+
+  return key === validKeys[paket];
+}
+
+// Hitung Tanggal Kadaluarsa
+function calculateExpirationDate(paket) {
+  const today = new Date();
+  if (paket === "basic") {
+    today.setDate(today.getDate() + 30);
+  } else {
+    // Pro selamanya, set jauh di masa depan
+    today.setFullYear(today.getFullYear() + 100);
+  }
+  return today.toISOString();
+}
+
+// Fungsi Update Status Lisensi
+function updateLicenseStatus() {
+  const licenseStatus = document.getElementById("licenseStatus");
+  const licenseData = JSON.parse(localStorage.getItem("mcnineAiLicense"));
+
+  if (licenseData) {
+    const expirationDate = new Date(licenseData.kadaluarsa);
+    const today = new Date();
+
+    if (today <= expirationDate) {
+      licenseStatus.innerHTML = `
+        <div class="text-green-400">
+          <p>Status: Aktif</p>
+          <p>Paket: ${licenseData.paket.toUpperCase()}</p>
+          <p>Berlaku sampai: ${new Date(
+            licenseData.kadaluarsa
+          ).toLocaleDateString()}</p>
+        </div>
+      `;
+    } else {
+      licenseStatus.innerHTML = `
+        <div class="text-red-400">
+          <p>Status: Kadaluarsa</p>
+          <p>Silakan perpanjang lisensi</p>
+        </div>
+      `;
+    }
+  } else {
+    licenseStatus.innerHTML = `
+      <div class="text-gray-400">
+        <p>Belum Ada Lisensi Aktif</p>
+      </div>
+    `;
+  }
+}
+
+// Event Listener Saat Halaman Dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  const aktivasiButton = document.getElementById("aktivasiButton");
+  const paketButtons = document.querySelectorAll(".paket-btn");
+  let selectedPaket = null;
+
+  // Event Listener Pilih Paket
+  paketButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Hapus seleksi sebelumnya
+      paketButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Ambil paket yang dipilih
+      selectedPaket = button.dataset.paket;
+
+      // Tampilkan informasi paket
+      const paket = PAKET_CONFIG[selectedPaket];
+      const paketInfo = document.getElementById("paketInfo");
+      paketInfo.innerHTML = `
+        <div>
+          <h4 class="font-bold text-white mb-2">${selectedPaket.toUpperCase()} Paket</h4>
+          <p>Harga: Rp ${paket.harga.toLocaleString()}</p>
+          <p>Durasi: ${paket.durasi}</p>
+          <ul class="list-disc list-inside mt-2">
+            ${paket.fitur.map((fitur) => `<li>${fitur}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    });
+  });
+
+  // Event Listener Aktivasi
+  aktivasiButton.addEventListener("click", () => {
+    const licenseKey = document.getElementById("licenseKey").value;
+
+    if (!selectedPaket) {
+      alert("Pilih paket terlebih dahulu");
+      return;
+    }
+
+    if (!licenseKey) {
+      alert("Masukkan kode lisensi");
+      return;
+    }
+
+    // Validasi kode lisensi
+    const isValid = validateLicenseKey(licenseKey, selectedPaket);
+
+    if (isValid) {
+      // Simpan informasi lisensi
+      localStorage.setItem(
+        "mcnineAiLicense",
+        JSON.stringify({
+          paket: selectedPaket,
+          tanggalAktivasi: new Date().toISOString(),
+          kadaluarsa: calculateExpirationDate(selectedPaket),
+        })
+      );
+
+      // Update status lisensi
+      updateLicenseStatus();
+
+      alert("Lisensi berhasil diaktifkan!");
+    } else {
+      alert("Kode lisensi tidak valid");
+    }
+  });
+});
+
+// Untuk premium
+let selectedPaket = "";
+
+// Buka modal premium
+buyLicenseBtn.addEventListener("click", () => {
+  premiumModal.classList.remove("hidden");
+});
+
+// Tutup modal premium
+closePremiumModal.addEventListener("click", () => {
+  premiumModal.classList.add("hidden");
+});
+
+// Pilih paket Basic
+basicPaketBtn.addEventListener("click", () => {
+  selectedPaket = "Basic";
+  konfirmasiTitle.textContent = "Konfirmasi Pembayaran";
+  konfirmasiPaket.textContent =
+    "Anda memilih Paket Basic (30 hari) - Rp 50.000";
+  premiumModal.classList.add("hidden");
+  konfirmasiModal.classList.remove("hidden");
+});
+
+// Pilih paket Pro
+proPaketBtn.addEventListener("click", () => {
+  selectedPaket = "Pro";
+  konfirmasiTitle.textContent = "Konfirmasi Pembayaran";
+  konfirmasiPaket.textContent =
+    "Anda memilih Paket Pro (selamanya) - Rp 150.000";
+  premiumModal.classList.add("hidden");
+  konfirmasiModal.classList.remove("hidden");
+});
+
+// Batal konfirmasi
+batalKonfirmasi.addEventListener("click", () => {
+  konfirmasiModal.classList.add("hidden");
+});
+
+// Konfirmasi pembayaran
+konfirmasiPembayaran.addEventListener("click", () => {
+  const kodeAktivasi = aktivasiInput.value.trim();
+  if (kodeAktivasi === "VALID_CODE") {
+    // Ganti dengan logika validasi yang sesuai
+    konfirmasiModal.classList.add("hidden");
+    suksesMessage.textContent = `Aktivasi ${selectedPaket} berhasil!`;
+    suksesModal.classList.remove("hidden");
+
+    // Tambahkan baris ini untuk memperbarui indikator premium
+    updatePremiumIndicator();
+  } else {
+    konfirmasiModal.classList.add("hidden");
+    gagalMessage.textContent = "Kode aktivasi tidak valid";
+    gagalModal.classList.remove("hidden");
+  }
+});
+
+// Tutup modal sukses
+tutupSuksesModal.addEventListener("click", () => {
+  suksesModal.classList.add("hidden");
+});
+
+// Tutup modal gagal
+tutupGagalModal.addEventListener("click", () => {
+  gagalModal.classList.add("hidden");
+});
+
+// Tutup modal jika mengklik di luar area modal
+[premiumModal, konfirmasiModal, suksesModal, gagalModal].forEach((modal) => {
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.classList.add("hidden");
+    }
+  });
 });
 
 // Panggil fungsi saat halaman dimuat
