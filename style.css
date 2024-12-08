@@ -228,3 +228,20 @@ body {
   background: rgba(59, 130, 246, 0.1);
   color: #2563eb;
 }
+
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-open footer {
+  display: none !important;
+  visibility: hidden;
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.d-block {
+  display: block;
+  margin-bottom: 6rem;
+}

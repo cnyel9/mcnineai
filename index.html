@@ -74,7 +74,7 @@
   class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex flex-col"
 >
 <header
-class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl shadow-lg"
+class=" top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl shadow-lg"
 >
 <div
   class="container mx-auto px-4 py-3 flex justify-between items-center"
@@ -173,7 +173,7 @@ class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl shadow-lg"
     <!-- Modal MCNine Premium -->
 <div 
 id="premiumModal" 
-class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center"
+class="fixed inset-0 bg-black bg-opacity-50 z-[1000] hidden flex items-center justify-center"
 >
 <div class="bg-gray-800 rounded-2xl p-6 w-96 max-w-full mx-4 shadow-2xl">
   <div class="flex justify-between items-center mb-4">
@@ -218,39 +218,56 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center jus
 </div>
 
 <!-- Modal Konfirmasi Pembayaran -->
-<div 
-id="konfirmasiModal" 
-class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center"
+<div
+  id="konfirmasiModal"
+  class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center p-2 md:p-4"
 >
-<div class="bg-gray-800 rounded-2xl p-6 w-96 max-w-full mx-4 shadow-2xl">
-  <h2 class="text-2xl font-bold text-white mb-4" id="konfirmasiTitle">Konfirmasi Pembayaran</h2>
-  <p id="konfirmasiPaket" class="text-gray-300 mb-4"></p>
-  
-  <div class="mb-4">
-    <label class="block text-white mb-2">Kode Aktivasi</label>
-    <input 
-      type="text" 
-      id="aktivasiInput" 
-      placeholder="Masukkan Kode Aktivasi" 
-      class="w-full p-2 rounded bg-gray-600 text-white border border-gray-500"
-    />
-  </div>
+  <div class="bg-gray-800 rounded-2xl p-4 md:p-6 w-full md:w-[90%] max-w-[600px] mx-auto md:mx-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+    <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+      <h2 
+        class="text-lg md:text-2xl font-bold text-white" 
+        id="konfirmasiTitle"
+      >
+        Konfirmasi Pembayaran
+      </h2>
+      <button 
+        id="closeKonfirmasiModal" 
+        class="text-gray-400 hover:text-white transition-colors"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
 
-  <div class="flex space-x-2">
-    <button 
-      id="batalKonfirmasi" 
-      class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition"
-    >
-      Batal
-    </button>
-    <button 
-      id="konfirmasiPembayaran" 
-      class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
-    >
-      Konfirmasi
-    </button>
+    <p 
+      id="konfirmasiPaket" 
+      class="text-sm md:text-base text-gray-300 mb-4"
+    ></p>
+  
+    <div class="mb-4">
+      <label class="block text-white mb-2 text-sm md:text-base">Kode Aktivasi</label>
+      <input 
+        type="text" 
+        id="aktivasiInput" 
+        placeholder="Masukkan Kode Aktivasi" 
+        class="w-full p-2 rounded bg-gray-600 text-white border border-gray-500 text-sm md:text-base"
+      />
+    </div>
+
+    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+      <button 
+        id="batalKonfirmasi" 
+        class="w-full md:flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition text-sm md:text-base"
+      >
+        Batal
+      </button>
+      <button 
+        id="konfirmasiPembayaran" 
+        class="w-full md:flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition text-sm md:text-base"
+      >
+        Konfirmasi
+      </button>
+    </div>
   </div>
-</div>
 </div>
 
 <!-- Modal Sukses -->
@@ -291,9 +308,9 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center jus
 
     <!-- Modal Pengaturan -->
     <div
-      id="settingsModal"
-      class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center"
-    >
+  id="settingsModal"
+  class="fixed inset-0 bg-black bg-opacity-50 z-[200] hidden flex items-center justify-center"
+>
       <div class="bg-gray-800 rounded-2xl p-6 w-96 max-w-full mx-4 shadow-2xl">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-white">Pengaturan</h2>
@@ -329,8 +346,12 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center jus
       </div>
     </div>
 
+    <div class="d-block"></div>
+    <div class="d-block"></div>
+    <div class="d-block"></div>
+
     <!-- FOOTER -->
-<footer class="bg-black/20 backdrop-blur-xl py-4 mt-8">
+    <footer class="bg-black/20 backdrop-blur-xl py-4 mt-8 relative z-10">
   <div class="container mx-auto px-4 text-center">
     <p class="text-gray-500 text-sm">
       © 2024 MCNine AI. All Rights Reserved.
@@ -356,7 +377,7 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center jus
           x-transition:leave-start="opacity-100 scale-100"
           x-transition:leave-end="opacity-0 scale-90"
           @click.outside="open = false"
-          class="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white/20 backdrop-blur-xl rounded-xl shadow-lg p-4 border border-white/10"
+          class="absolute z-[300] bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white/20 backdrop-blur-xl rounded-xl shadow-lg p-4 border border-white/10"
           style="display: none;"
         >
           <div class="flex space-x-4">

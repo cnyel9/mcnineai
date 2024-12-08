@@ -109,6 +109,25 @@ const suksesMessage = document.getElementById("suksesMessage");
 const gagalMessage = document.getElementById("gagalMessage");
 const aktivasiInput = document.getElementById("aktivasiInput");
 
+// Event listener untuk tombol Buy License
+buyLicenseBtn.addEventListener("click", () => {
+  console.log("Tombol Dapatkan Premium diklik"); // Untuk debugging
+  premiumModal.classList.remove("hidden");
+});
+
+// Tutup modal premium
+closePremiumModal.addEventListener("click", () => {
+  console.log("Tombol Tutup Premium Modal diklik"); // Untuk debugging
+  premiumModal.classList.add("hidden");
+});
+
+// Tambahkan event listener untuk menutup modal saat mengklik di luar area modal
+premiumModal.addEventListener("click", (event) => {
+  if (event.target === premiumModal) {
+    premiumModal.classList.add("hidden");
+  }
+});
+
 // Event listener untuk modal pengaturan
 document.addEventListener("DOMContentLoaded", () => {
   const settingsButton = document.getElementById("settingsButton");
@@ -1132,32 +1151,132 @@ document.addEventListener("DOMContentLoaded", () => {
 // Untuk premium
 let selectedPaket = "";
 
-// Buka modal premium
-buyLicenseBtn.addEventListener("click", () => {
-  premiumModal.classList.remove("hidden");
-});
-
-// Tutup modal premium
-closePremiumModal.addEventListener("click", () => {
-  premiumModal.classList.add("hidden");
-});
-
-// Pilih paket Basic
 basicPaketBtn.addEventListener("click", () => {
   selectedPaket = "Basic";
-  konfirmasiTitle.textContent = "Konfirmasi Pembayaran";
-  konfirmasiPaket.textContent =
-    "Anda memilih Paket Basic (30 hari) - Rp 50.000";
+  konfirmasiTitle.textContent = "Konfirmasi Pembayaran Paket Basic";
+  konfirmasiPaket.innerHTML = `
+    <div class="grid grid-cols-2 gap-6 bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg">
+      <div class="col-span-1">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-1xl font-bold text-blue-600">Paket Basic</h3>
+          <div class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm">
+            30 Hari Akses
+          </div>
+        </div>
+        
+        <div class="space-y-3">
+          ${[
+            "Durasi Akses: 30 Hari",
+            "Maksimal 100 Pertanyaan per Bulan",
+            "Akses Dasar ke Semua Fitur AI",
+            "Dukungan Pelanggan via Email",
+          ]
+            .map(
+              (fitur) => `
+            <div class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
+              <span class="text-blue-800">${fitur}</span>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+      
+      <div class="col-span-1 flex flex-col justify-between">
+        <div class="space-y-3">
+          ${["Prioritas Dukungan", "Akses Fitur Eksklusif"]
+            .map(
+              (fitur) => `
+            <div class="flex items-center">
+              <i class="fas fa-times-circle text-red-400 mr-3 text-lg"></i>
+              <span class="text-gray-500 line-through">${fitur}</span>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+        
+        <div class="bg-blue-500/10 p-3 rounded-lg mt-4">
+          <div class="flex justify-between items-center">
+            <span class="text-blue-800 font-semibold">Total Harga</span>
+            <span class="text-1xl font-bold text-blue-600">Rp 50.000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
   premiumModal.classList.add("hidden");
   konfirmasiModal.classList.remove("hidden");
 });
 
-// Pilih paket Pro
+// Untuk Paket Pro, gunakan pendekatan serupa
 proPaketBtn.addEventListener("click", () => {
   selectedPaket = "Pro";
-  konfirmasiTitle.textContent = "Konfirmasi Pembayaran";
-  konfirmasiPaket.textContent =
-    "Anda memilih Paket Pro (selamanya) - Rp 150.000";
+  konfirmasiTitle.textContent = "Konfirmasi Pembayaran Paket Pro";
+  konfirmasiPaket.innerHTML = `
+    <div class="grid grid-cols-2 gap-6 bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg relative">
+      <div class="absolute top-0 right-0 bg-yellow-400 text-white px-3 py-1 rounded-bl-xl text-xs font-bold">
+        BEST VALUE
+      </div>
+      
+      <div class="col-span-1">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-1xl font-bold text-purple-600">Paket Pro</h3>
+          <div class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">
+            Akses Selamanya
+          </div>
+        </div>
+        
+        <div class="space-y-3">
+          ${[
+            "Akses Selamanya",
+            "Pertanyaan Unlimited",
+            "Akses Penuh Semua Fitur AI",
+            "Prioritas Dukungan Pelanggan",
+          ]
+            .map(
+              (fitur) => `
+            <div class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
+              <span class="text-purple-800">${fitur}</span>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+      
+      <div class="col-span-1 flex flex-col justify-between">
+        <div class="space-y-3">
+          ${[
+            "Akses Fitur Eksklusif Terbaru",
+            "Update Fitur Tanpa Biaya Tambahan",
+            "Konsultasi Personal",
+          ]
+            .map(
+              (fitur) => `
+            <div class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
+              <span class="text-purple-800">${fitur}</span>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+        
+        <div>
+          <div class="bg-purple-500/10 p-3 rounded-lg mt-4">
+            <div class="flex justify-between items-center">
+              <span class="text-purple-800 font-semibold">Total Harga</span>
+              <span class="text-1xl font-bold text-purple-600">Rp 50.000</span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  `;
   premiumModal.classList.add("hidden");
   konfirmasiModal.classList.remove("hidden");
 });
@@ -1210,6 +1329,22 @@ tutupGagalModal.addEventListener("click", () => {
     }
   });
 });
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    // Tutup semua modal
+    document.querySelectorAll('[id$="Modal"]').forEach((modal) => {
+      modal.classList.add("hidden");
+      document.body.classList.remove("modal-open");
+    });
+  }
+});
+
+document
+  .getElementById("closeKonfirmasiModal")
+  .addEventListener("click", () => {
+    konfirmasiModal.classList.add("hidden");
+  });
 
 // Panggil fungsi saat halaman dimuat
 document.addEventListener("DOMContentLoaded", addCopyFeature);
