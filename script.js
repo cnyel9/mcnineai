@@ -506,21 +506,25 @@ document.addEventListener("DOMContentLoaded", () => {
 konfirmasiPembayaran.addEventListener("click", () => {
   const kodeAktivasi = aktivasiInput.value.trim();
 
-  // Gunakan kode aktivasi yang valid dari PREMIUM_KEYS
+  console.log("Kode Aktivasi Dimasukkan:", kodeAktivasi);
+  console.log("Paket Dipilih:", selectedPaket);
+  console.log("Kode Basic:", PREMIUM_KEYS.basic);
+  console.log("Kode Pro:", PREMIUM_KEYS.pro);
+
   if (
     (selectedPaket === "Basic" && kodeAktivasi === PREMIUM_KEYS.basic) ||
     (selectedPaket === "Pro" && kodeAktivasi === PREMIUM_KEYS.pro)
   ) {
-    // Simpan status premium
+    console.log("Validasi Berhasil");
     savePremiumStatus(selectedPaket.toLowerCase());
 
     konfirmasiModal.classList.add("hidden");
     suksesMessage.textContent = `Aktivasi ${selectedPaket} berhasil!`;
     suksesModal.classList.remove("hidden");
 
-    // Perbarui indikator premium
     updatePremiumIndicator();
   } else {
+    console.log("Validasi Gagal");
     konfirmasiModal.classList.add("hidden");
     gagalMessage.textContent = "Kode aktivasi tidak valid";
     gagalModal.classList.remove("hidden");
@@ -532,26 +536,32 @@ function updatePremiumIndicator() {
   const isPremium = cekStatusPremium();
   const premiumIndicator = document.getElementById("premiumIndicator");
 
-  if (!premiumIndicator) {
-    console.warn("Premium indicator element not found");
-    return;
-  }
-
   if (isPremium) {
     premiumIndicator.innerHTML = `
-      <span class="text-green-500">
-        <i class="fas fa-crown"></i> Premium Aktif
+      <span class="text-xs text-green-500 font-semibold 
+        hover:bg-green-500/10 
+        px-2 py-1 
+        rounded-full 
+        transition-all 
+        duration-300 
+        cursor-pointer">
+        <i class="fas fa-crown mr-1 text-yellow-500"></i>
+        Premium
       </span>
     `;
-    // Tambahkan kelas atau styling tambahan jika diperlukan
-    premiumIndicator.classList.add("premium-active");
   } else {
     premiumIndicator.innerHTML = `
-      <span class="text-gray-500">
-        <i class="fas fa-lock"></i> Upgrade Premium
+      <span class="text-xs text-gray-400 
+        hover:bg-gray-500/10 
+        px-2 py-1 
+        rounded-full 
+        transition-all 
+        duration-300 
+        cursor-pointer">
+        <i class="fas fa-lock mr-1"></i>
+        Upgrade
       </span>
     `;
-    premiumIndicator.classList.remove("premium-active");
   }
 }
 
@@ -1160,13 +1170,20 @@ batalKonfirmasi.addEventListener("click", () => {
 // Konfirmasi pembayaran
 konfirmasiPembayaran.addEventListener("click", () => {
   const kodeAktivasi = aktivasiInput.value.trim();
-  if (kodeAktivasi === "VALID_CODE") {
-    // Ganti dengan logika validasi yang sesuai
+
+  // Gunakan kode aktivasi yang valid dari PREMIUM_KEYS
+  if (
+    (selectedPaket === "Basic" && kodeAktivasi === PREMIUM_KEYS.basic) ||
+    (selectedPaket === "Pro" && kodeAktivasi === PREMIUM_KEYS.pro)
+  ) {
+    // Simpan status premium
+    savePremiumStatus(selectedPaket.toLowerCase());
+
     konfirmasiModal.classList.add("hidden");
     suksesMessage.textContent = `Aktivasi ${selectedPaket} berhasil!`;
     suksesModal.classList.remove("hidden");
 
-    // Tambahkan baris ini untuk memperbarui indikator premium
+    // Perbarui indikator premium
     updatePremiumIndicator();
   } else {
     konfirmasiModal.classList.add("hidden");
