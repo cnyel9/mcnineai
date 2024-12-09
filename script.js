@@ -1,5 +1,5 @@
-// Konfigurasi API Gemini
-const API_KEY = "AIzaSyBkll4wVmrjQukSWsNIe_WJT7cPmL4LU8k";
+// Konfigurasi API
+const API_KEY = "AIzaSyA5yLLoO8e2NgoiczqdAj63yaK6Lme-b0E";
 const MODEL_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
   API_KEY;
