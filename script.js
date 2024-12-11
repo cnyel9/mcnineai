@@ -1044,7 +1044,7 @@ const PAKET_CONFIG = {
     fitur: ["Akses Dasar AI", "Terbatas 100 Pertanyaan", "Dukungan Email"],
   },
   pro: {
-    harga: 150000,
+    harga: 50000,
     durasi: "Selamanya",
     maxQuestions: Infinity,
     fitur: [
@@ -1235,6 +1235,7 @@ basicPaketBtn.addEventListener("click", () => {
         
         <div class="bg-blue-500/10 p-3 rounded-lg mt-4">
           <div class="flex justify-between items-center">
+<<<<<<< HEAD
             <span class="text-blue-800 font-semibold text-sm md:text-base">Total Harga</span>
             <span class="text-lg md:text-xl font-bold text-blue-600">Rp 10.000</span>
           </div>
@@ -1250,6 +1251,10 @@ basicPaketBtn.addEventListener("click", () => {
               <span class="text-sm md:text-base">Beli via WhatsApp</span>
             </button>
             
+=======
+            <span class="text-blue-800 font-semibold">Total Harga</span>
+            <span class="text-1xl font-bold text-blue-600">Rp 10.000</span>
+>>>>>>> 7acd15338085b19ac778cb72d8f82be0d21693b9
           </div>
         </div>
       </div>
