@@ -48,7 +48,21 @@ body {
   flex-direction: column;
   overflow-y: auto;
   max-height: 100%;
+  font-size: 0.75rem; /* Ukuran teks lebih kecil */
+  line-height: 1.4; /* Jarak antar baris */
 }
+
+/* Untuk avatar */
+.message-container img {
+  width: 30px; /* Ukuran avatar lebih kecil */
+  height: 30px;
+}
+
+/* Jika ingin mengatur spasi antar pesan */
+.message-container > div {
+  margin-bottom: 0.5rem; /* Spasi antar pesan lebih rapat */
+}
+
 .transparent-gif {
   background: transparent;
   mix-blend-mode: multiply;
@@ -75,6 +89,14 @@ body {
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.125);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+}
+
+.user-bubble,
+.ai-bubble {
+  padding: 0.5rem 0.75rem; /* Padding lebih kecil */
+  max-width: 80%;
+  font-size: 0.7rem; /* Ukuran teks dalam bubble lebih kecil */
+  line-height: 1.3;
 }
 
 .ai-bubble {
@@ -244,4 +266,17 @@ body {
 .d-block {
   display: block;
   margin-bottom: 6rem;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.5s ease-out;
 }

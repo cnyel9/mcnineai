@@ -1,5 +1,5 @@
-// Konfigurasi API Gemini
-const API_KEY = "AIzaSyBkll4wVmrjQukSWsNIe_WJT7cPmL4LU8k";
+// Konfigurasi API
+const API_KEY = "AIzaSyA5yLLoO8e2NgoiczqdAj63yaK6Lme-b0E";
 const MODEL_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
   API_KEY;
@@ -108,6 +108,42 @@ const konfirmasiPaket = document.getElementById("konfirmasiPaket");
 const suksesMessage = document.getElementById("suksesMessage");
 const gagalMessage = document.getElementById("gagalMessage");
 const aktivasiInput = document.getElementById("aktivasiInput");
+
+// Untuk user input prompt
+function autoResize(textarea) {
+  // Reset tinggi ke auto
+  textarea.style.height = "auto";
+
+  // Atur ulang tinggi berdasarkan scroll height
+  if (textarea.scrollHeight <= 200) {
+    textarea.style.height = textarea.scrollHeight + "px";
+  } else {
+    // Jika melebihi 200px, aktifkan scrolling
+    textarea.style.height = "200px";
+    textarea.style.overflowY = "auto";
+  }
+
+  // Batasi panjang input
+  if (textarea.value.length > 1000) {
+    textarea.value = textarea.value.substring(0, 1000);
+    showNotification("Pesan dibatasi maksimal 1000 karakter");
+  }
+}
+
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.className =
+    "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50";
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.add("animate-fade-out");
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 500);
+  }, 3000);
+}
 
 // Event listener untuk tombol Buy License
 buyLicenseBtn.addEventListener("click", () => {
@@ -1151,15 +1187,15 @@ document.addEventListener("DOMContentLoaded", () => {
 // Untuk premium
 let selectedPaket = "";
 
+// Paket Basic
 basicPaketBtn.addEventListener("click", () => {
   selectedPaket = "Basic";
-  konfirmasiTitle.textContent = "Konfirmasi Pembayaran Paket Basic";
   konfirmasiPaket.innerHTML = `
-    <div class="grid grid-cols-2 gap-6 bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg">
-      <div class="col-span-1">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-gradient-to-br from-blue-50 to-blue-100 p-4 md:p-6 rounded-xl shadow-lg">
+      <div class="md:col-span-1">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-1xl font-bold text-blue-600">Paket Basic</h3>
-          <div class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm">
+          <h3 class="text-lg md:text-xl font-bold text-blue-600">Paket Basic</h3>
+          <div class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-xs md:text-sm">
             30 Hari Akses
           </div>
         </div>
@@ -1175,7 +1211,7 @@ basicPaketBtn.addEventListener("click", () => {
               (fitur) => `
             <div class="flex items-center">
               <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
-              <span class="text-blue-800">${fitur}</span>
+              <span class="text-blue-800 text-sm md:text-base">${fitur}</span>
             </div>
           `
             )
@@ -1183,14 +1219,14 @@ basicPaketBtn.addEventListener("click", () => {
         </div>
       </div>
       
-      <div class="col-span-1 flex flex-col justify-between">
+      <div class="md:col-span-1 flex flex-col justify-between">
         <div class="space-y-3">
           ${["Prioritas Dukungan", "Akses Fitur Eksklusif"]
             .map(
               (fitur) => `
             <div class="flex items-center">
               <i class="fas fa-times-circle text-red-400 mr-3 text-lg"></i>
-              <span class="text-gray-500 line-through">${fitur}</span>
+              <span class="text-gray-500 line-through text-sm md:text-base">${fitur}</span>
             </div>
           `
             )
@@ -1199,13 +1235,62 @@ basicPaketBtn.addEventListener("click", () => {
         
         <div class="bg-blue-500/10 p-3 rounded-lg mt-4">
           <div class="flex justify-between items-center">
-            <span class="text-blue-800 font-semibold">Total Harga</span>
-            <span class="text-1xl font-bold text-blue-600">Rp 50.000</span>
+            <span class="text-blue-800 font-semibold text-sm md:text-base">Total Harga</span>
+            <span class="text-lg md:text-xl font-bold text-blue-600">Rp 10.000</span>
+          </div>
+        </div>
+      </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button 
+              id="beliWhatsAppBtn" 
+              class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-1 rounded-lg transition-colors space-x-2"
+            >
+              <i class="fab fa-whatsapp text-xl"></i>
+              <span class="text-sm md:text-base">Beli via WhatsApp</span>
+            </button>
+            
           </div>
         </div>
       </div>
     </div>
   `;
+
+  // Tunggu hingga DOM selesai dimuat
+  setTimeout(() => {
+    const beliWhatsAppBtn = document.getElementById("beliWhatsAppBtn");
+    const konfirmasiPembayaranBtn = document.getElementById(
+      "konfirmasiPembayaranBtn"
+    );
+
+    // Event listener untuk tombol WhatsApp
+    if (beliWhatsAppBtn) {
+      beliWhatsAppBtn.addEventListener("click", () => {
+        // Nomor WhatsApp admin/support (ganti dengan nomor aktual)
+        const whatsappNumber = "6283154756590";
+
+        // Pesan template
+        const message = `Halo, saya ingin membeli Paket Basic seharga Rp 10.000 untuk 30 hari akses.`;
+
+        // Buka WhatsApp Web atau Aplikasi
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          message
+        )}`;
+        window.open(whatsappUrl, "_blank");
+      });
+    }
+
+    // Event listener untuk tombol Konfirmasi Pembayaran
+    if (konfirmasiPembayaranBtn) {
+      konfirmasiPembayaranBtn.addEventListener("click", () => {
+        // Sembunyikan modal sebelumnya
+        premiumModal.classList.add("hidden");
+        // Tampilkan modal konfirmasi
+        konfirmasiModal.classList.remove("hidden");
+      });
+    }
+  }, 100); // Tambahkan sedikit delay untuk memastikan elemen sudah ada
+
   premiumModal.classList.add("hidden");
   konfirmasiModal.classList.remove("hidden");
 });
@@ -1213,17 +1298,16 @@ basicPaketBtn.addEventListener("click", () => {
 // Untuk Paket Pro, gunakan pendekatan serupa
 proPaketBtn.addEventListener("click", () => {
   selectedPaket = "Pro";
-  konfirmasiTitle.textContent = "Konfirmasi Pembayaran Paket Pro";
   konfirmasiPaket.innerHTML = `
-    <div class="grid grid-cols-2 gap-6 bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg relative">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-gradient-to-br from-purple-50 to-purple-100 p-4 md:p-6 rounded-xl shadow-lg relative">
       <div class="absolute top-0 right-0 bg-yellow-400 text-white px-3 py-1 rounded-bl-xl text-xs font-bold">
         BEST VALUE
       </div>
       
-      <div class="col-span-1">
+      <div class="md:col-span-1">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-1xl font-bold text-purple-600">Paket Pro</h3>
-          <div class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">
+          <h3 class="text-lg md:text-xl font-bold text-purple-600">Paket Pro</h3>
+          <div class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-xs md:text-sm">
             Akses Selamanya
           </div>
         </div>
@@ -1239,7 +1323,7 @@ proPaketBtn.addEventListener("click", () => {
               (fitur) => `
             <div class="flex items-center">
               <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
-              <span class="text-purple-800">${fitur}</span>
+              <span class="text-purple-800 text-sm md:text-base">${fitur}</span>
             </div>
           `
             )
@@ -1247,7 +1331,7 @@ proPaketBtn.addEventListener("click", () => {
         </div>
       </div>
       
-      <div class="col-span-1 flex flex-col justify-between">
+      <div class="md:col-span-1 flex flex-col justify-between">
         <div class="space-y-3">
           ${[
             "Akses Fitur Eksklusif Terbaru",
@@ -1258,25 +1342,68 @@ proPaketBtn.addEventListener("click", () => {
               (fitur) => `
             <div class="flex items-center">
               <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
-              <span class="text-purple-800">${fitur}</span>
+              <span class="text-purple-800 text-sm md:text-base">${fitur}</span>
             </div>
           `
             )
             .join("")}
         </div>
         
-        <div>
-          <div class="bg-purple-500/10 p-3 rounded-lg mt-4">
-            <div class="flex justify-between items-center">
-              <span class="text-purple-800 font-semibold">Total Harga</span>
-              <span class="text-1xl font-bold text-purple-600">Rp 50.000</span>
-            </div>
+        <div class="bg-purple-500/10 p-3 rounded-lg mt-4">
+          <div class="flex justify-between items-center">
+            <span class="text-purple-800 font-semibold text-sm md:text-base">Total Harga</span>
+            <span class="text-lg md:text-xl font-bold text-purple-600">Rp 50.000</span>
           </div>
-          
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <div class="bg-white/10 p-4 rounded-lg border border-purple-200/20">
+          <div class="grid grid-cols-1 gap-3">
+            <button 
+              id="beliWhatsAppBtnPro" 
+              class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-1 rounded-lg transition-colors space-x-2"
+            >
+              <i class="fab fa-whatsapp text-xl"></i>
+              <span class="text-sm md:text-base">Beli via WhatsApp</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   `;
+
+  // Tunggu hingga DOM selesai dimuat
+  setTimeout(() => {
+    const beliWhatsAppBtnPro = document.getElementById("beliWhatsAppBtnPro");
+    const batalKonfirmasiBtn = document.getElementById("batalKonfirmasiBtn");
+
+    // Event listener untuk tombol WhatsApp Pro
+    if (beliWhatsAppBtnPro) {
+      beliWhatsAppBtnPro.addEventListener("click", () => {
+        // Nomor WhatsApp admin/support (ganti dengan nomor aktual)
+        const whatsappNumber = "6283154756590";
+
+        // Pesan template
+        const message = `Halo, saya ingin membeli Paket Pro seharga Rp 50.000 dengan Akses Selamanya.`;
+
+        // Buka WhatsApp Web atau Aplikasi
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          message
+        )}`;
+        window.open(whatsappUrl, "_blank");
+      });
+    }
+
+    // Event listener untuk tombol batal
+    if (batalKonfirmasiBtn) {
+      batalKonfirmasiBtn.addEventListener("click", () => {
+        konfirmasiModal.classList.add("hidden");
+        premiumModal.classList.remove("hidden");
+      });
+    }
+  }, 100);
+
   premiumModal.classList.add("hidden");
   konfirmasiModal.classList.remove("hidden");
 });

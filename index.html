@@ -124,7 +124,7 @@ class=" top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl shadow-lg"
       </div>
 
       <div
-        class="input-area flex space-x-3 bg-white/5 backdrop-blur-xl rounded-full p-2 border border-white/10"
+        class="input-area flex space-x-3 bg-white/5 backdrop-blur-xl p-2"
       >
         <div id="imageUploadContainer" class="relative group">
           <input type="file" id="imageInput" accept="image/*" class="hidden" />
@@ -145,12 +145,27 @@ class=" top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl shadow-lg"
           </div>
         </div>
 
-        <input
-          type="text"
-          id="messageInput"
-          placeholder="Ketik pesan di sini..."
-          class="flex-grow bg-transparent text-white placeholder-gray-400 p-3 focus:outline-none"
-        />
+        <div class="relative w-full">
+          <textarea 
+            id="messageInput"
+            placeholder="Ketik pesan di sini..."
+            rows="1"
+            class="w-full resize-none overflow-hidden 
+                   bg-transparent 
+                   text-white 
+                   p-3 
+                   text-sm 
+                   border-none 
+                   rounded-none
+                   focus:border-transparent 
+                   focus:outline-none 
+                   focus:ring-0 
+                   transition-all 
+                   duration-300"
+            style="max-height: 200px; min-height: 40px;"
+            oninput="autoResize(this)"
+          ></textarea>
+        </div>
 
         <button
   id="sendButton"
@@ -189,7 +204,7 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[1000] hidden flex items-center ju
       <h3 class="text-lg font-semibold text-blue-400 mb-2">Paket Basic</h3>
       <p class="text-gray-300 mb-2">Akses premium selama 30 hari</p>
       <div class="flex justify-between items-center">
-        <span class="text-white font-bold">Rp 50.000</span>
+        <span class="text-white font-bold">Rp 10.000</span>
         <button 
           id="basicPaketBtn" 
           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
@@ -204,7 +219,7 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[1000] hidden flex items-center ju
       <h3 class="text-lg font-semibold text-purple-400 mb-2">Paket Pro</h3>
       <p class="text-gray-300 mb-2">Akses premium selamanya</p>
       <div class="flex justify-between items-center">
-        <span class="text-white font-bold">Rp 150.000</span>
+        <span class="text-white font-bold">Rp 50.000</span>
         <button 
           id="proPaketBtn" 
           class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition"
@@ -224,18 +239,6 @@ class="fixed inset-0 bg-black bg-opacity-50 z-[1000] hidden flex items-center ju
 >
   <div class="bg-gray-800 rounded-2xl p-4 md:p-6 w-full md:w-[90%] max-w-[600px] mx-auto md:mx-4 shadow-2xl overflow-y-auto max-h-[90vh]">
     <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
-      <h2 
-        class="text-lg md:text-2xl font-bold text-white" 
-        id="konfirmasiTitle"
-      >
-        Konfirmasi Pembayaran
-      </h2>
-      <button 
-        id="closeKonfirmasiModal" 
-        class="text-gray-400 hover:text-white transition-colors"
-      >
-        <i class="fas fa-times text-xl"></i>
-      </button>
     </div>
 
     <p 
