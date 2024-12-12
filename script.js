@@ -1,3 +1,5 @@
+import { loginWithGoogle } from "./firebase.js";
+
 // Konfigurasi API
 const API_KEY = "AIzaSyA5yLLoO8e2NgoiczqdAj63yaK6Lme-b0E";
 const MODEL_URL =
@@ -163,6 +165,11 @@ premiumModal.addEventListener("click", (event) => {
     premiumModal.classList.add("hidden");
   }
 });
+
+// Tambahkan event listener untuk tombol login
+document
+  .getElementById("loginWithGoogleBtn")
+  .addEventListener("click", loginWithGoogle);
 
 // Event listener untuk modal pengaturan
 document.addEventListener("DOMContentLoaded", () => {
