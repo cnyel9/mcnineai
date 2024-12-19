@@ -1,7 +1,7 @@
 import { loginWithGoogle } from "./firebase.js";
 
 // Konfigurasi API
-const API_KEY = "AIzaSyA5yLLoO8e2NgoiczqdAj63yaK6Lme-b0E";
+const API_KEY = "AIzaSyD4ELFoFivkBVr3TVf8Pr5hfmTyxUyNnLI";
 const MODEL_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
   API_KEY;
@@ -105,7 +105,6 @@ const suksesModal = document.getElementById("suksesModal");
 const tutupSuksesModal = document.getElementById("tutupSuksesModal");
 const gagalModal = document.getElementById("gagalModal");
 const tutupGagalModal = document.getElementById("tutupGagalModal");
-const konfirmasiTitle = document.getElementById("konfirmasiTitle");
 const konfirmasiPaket = document.getElementById("konfirmasiPaket");
 const suksesMessage = document.getElementById("suksesMessage");
 const gagalMessage = document.getElementById("gagalMessage");
