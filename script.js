@@ -1,7 +1,7 @@
 import { loginWithGoogle } from "./firebase.js";
 
 // Konfigurasi API
-const API_KEY = "AIzaSyA5yLLoO8e2NgoiczqdAj63yaK6Lme-b0E";
+const API_KEY = "AIzaSyD4ELFoFivkBVr3TVf8Pr5hfmTyxUyNnLI";
 const MODEL_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
   API_KEY;
