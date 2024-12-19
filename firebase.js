@@ -8,6 +8,7 @@ import {
 import {
   getFirestore,
   doc,
+  setDoc,
   updateDoc,
   getDoc,
   increment,
@@ -32,22 +33,89 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Kelas Pelacakan Pengunjung
+// Kelas Pelacakan Pengunjung dengan Fitur Lengkap
 class WebsiteVisitorTracker {
   constructor() {
     this.statsRef = doc(db, "analytics/websiteTraffic");
   }
 
-  // Tambah pengunjung
+  // Inisialisasi dokumen statistik
+  async initializeStatsDocument() {
+    try {
+      const docSnap = await getDoc(this.statsRef);
+
+      if (!docSnap.exists()) {
+        console.log("Membuat dokumen statistik baru");
+        await setDoc(this.statsRef, {
+          totalVisitors: 0,
+          uniqueVisitors: 0,
+          lastVisitorTimestamp: serverTimestamp(),
+          createdAt: serverTimestamp(),
+        });
+      }
+    } catch (error) {
+      console.error("Error inisialisasi dokumen:", error);
+    }
+  }
+
+  // Tambah pengunjung dengan metode robust
   async incrementVisitorCount() {
     try {
+      // Pastikan dokumen sudah ada
+      await this.initializeStatsDocument();
+
+      console.log("Mencoba menambah pengunjung");
       await updateDoc(this.statsRef, {
         totalVisitors: increment(1),
         lastVisitorTimestamp: serverTimestamp(),
       });
+
+      console.log("Pengunjung berhasil ditambahkan");
     } catch (error) {
       console.error("Error updating visitor count:", error);
+
+      // Coba metode alternatif
+      try {
+        await setDoc(
+          this.statsRef,
+          {
+            totalVisitors: increment(1),
+            lastVisitorTimestamp: serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        console.log("Pengunjung ditambahkan dengan metode alternatif");
+      } catch (altError) {
+        console.error("Metode alternatif gagal:", altError);
+      }
     }
+  }
+
+  // Lacak pengunjung unik
+  trackUniqueVisitor() {
+    const visitorKey = "mcnine_visitor_id";
+    let visitorId = localStorage.getItem(visitorKey);
+
+    if (!visitorId) {
+      // Generate unique visitor ID
+      visitorId = this.generateUniqueId();
+      localStorage.setItem(visitorKey, visitorId);
+    }
+
+    return visitorId;
+  }
+
+  // Generate unique ID
+  generateUniqueId() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
   }
 
   // Dapatkan statistik lengkap
@@ -64,24 +132,6 @@ class WebsiteVisitorTracker {
     }
   }
 
-  // Lacak detail pengunjung
-  trackVisitorDetails() {
-    const visitorInfo = {
-      timestamp: serverTimestamp(),
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.language,
-      screenResolution: `${window.screen.width}x${window.screen.height}`,
-      referrer: document.referrer,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      path: window.location.pathname,
-    };
-
-    // Simpan detail pengunjung
-    const visitorsCollectionRef = collection(db, "websiteVisitors");
-    addDoc(visitorsCollectionRef, visitorInfo);
-  }
-
   // Tampilkan statistik di UI
   displayVisitorStats() {
     this.getVisitorStats().then((stats) => {
@@ -92,6 +142,31 @@ class WebsiteVisitorTracker {
         ).toLocaleString();
       }
     });
+  }
+
+  // Simpan detail pengunjung
+  async saveVisitorDetails() {
+    const uniqueVisitorId = this.trackUniqueVisitor();
+
+    const visitorInfo = {
+      timestamp: serverTimestamp(),
+      visitorId: uniqueVisitorId,
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      referrer: document.referrer,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      path: window.location.pathname,
+    };
+
+    try {
+      const visitorsCollectionRef = collection(db, "websiteVisitors");
+      await addDoc(visitorsCollectionRef, visitorInfo);
+      console.log("Detail pengunjung berhasil disimpan");
+    } catch (error) {
+      console.error("Gagal menyimpan detail pengunjung:", error);
+    }
   }
 }
 
@@ -152,7 +227,6 @@ function logout() {
 
       // Hapus data tersimpan
       localStorage.removeItem("mcnineUser");
-
       showNotification("Anda berhasil logout");
     })
     .catch((error) => {
@@ -266,28 +340,46 @@ function setupLoginButtons() {
   });
 }
 
-// Event Listeners
-document.addEventListener("DOMContentLoaded", () => {
-  // Existing setup
-  setupLoginButtons();
-  checkLoginStatus();
+// Event Listeners Utama
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // Inisialisasi Tracker Pengunjung
+    await visitorTracker.initializeStatsDocument();
 
-  // Tambahkan event listener untuk logout
-  const logoutButtons = document.querySelectorAll("#logoutBtn");
-  logoutButtons.forEach((button) => {
-    button.addEventListener("click", logout);
-  });
+    // Tambah Pengunjung
+    await visitorTracker.incrementVisitorCount();
 
-  // Tambahkan pelacakan pengunjung
-  visitorTracker.incrementVisitorCount();
-  visitorTracker.trackVisitorDetails();
-  visitorTracker.displayVisitorStats();
+    // Simpan Detail Pengunjung
+    await visitorTracker.saveVisitorDetails();
+
+    // Tampilkan Statistik Pengunjung
+    visitorTracker.displayVisitorStats();
+
+    // Setup Autentikasi
+    setupLoginButtons();
+    checkLoginStatus();
+
+    // Setup Logout Buttons
+    const logoutButtons = document.querySelectorAll("#logoutBtn");
+    logoutButtons.forEach((button) => {
+      button.addEventListener("click", logout);
+    });
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
 });
 
-// Tambahkan metode baru untuk mengakses statistik
+// Fungsi Tambahan untuk Akses Statistik
 function getWebsiteVisitorStats() {
   return visitorTracker.getVisitorStats();
 }
 
-// Ekspor fungsi yang diperlukan
-export { auth, loginWithGoogle, logout, getWebsiteVisitorStats };
+// Ekspor Fungsi yang Diperlukan
+export {
+  auth,
+  loginWithGoogle,
+  logout,
+  getWebsiteVisitorStats,
+  db, // Jika membutuhkan akses database langsung
+  visitorTracker, // Jika ingin mengakses metode tracker
+};
